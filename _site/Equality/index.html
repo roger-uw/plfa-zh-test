@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equality: 相等性与等式推理 | 编程语言基础：Agda 描述
+</title><!-- Begin Jekyll SEO tag v2.5.0 -->
+<meta name="generator" content="Jekyll v3.8.5" />
+<meta property="og:title" content="Equality: 相等性与等式推理" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="编程语言基础：Agda 描述" />
+<meta property="og:description" content="编程语言基础：Agda 描述" />
+<link rel="canonical" href="https://roger-uw.github.io/PLFA-zh/Equality/" />
+<meta property="og:url" content="https://roger-uw.github.io/PLFA-zh/Equality/" />
+<meta property="og:site_name" content="编程语言基础：Agda 描述" />
+<script type="application/ld+json">
+{"description":"编程语言基础：Agda 描述","@type":"WebPage","url":"https://roger-uw.github.io/PLFA-zh/Equality/","headline":"Equality: 相等性与等式推理","@context":"http://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/PLFA-zh/assets/main.css"></head>
+<body><header class="site-header" role="banner">
+
+    <div class="wrapper">
+
+        <a class="site-title" href="/PLFA-zh/">编程语言基础：Agda 描述
+</a>
+
+        <nav class="site-nav">
+            <span class="menu-icon">
+                <svg viewBox="0 0 18 15" width="18px" height="15px">
+                    <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+                    <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+                    <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+                </svg>
+            </span>
+
+            <div class="trigger">
+                <a class="page-link" href="/PLFA-zh/">目录</a>
+                <a class="page-link" href="/PLFA-zh/GettingStarted/">使用说明</a>
+            </div>
+        </nav>
+
+    </div>
+
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post">
+
+  <header class="post-header">
+      <h1 class="post-title">Equality: 相等性与等式推理</h1>
+  </header>
+
+  <p style="text-align:center;">
+    
+    <a alt="Previous chapter" href="/PLFA-zh/Relations/">前一章</a>
+    &bullet;
+    
+    
+    <a alt="Source code" href="https://github.com/roger-uw/PLFA-zh/blob/dev/src/plfa/Equality.lagda">源代码</a>
+    
+    
+    &bullet;
+    <a alt="Next chapter" href="/PLFA-zh/Isomorphism/">后一章</a>
+    
+</p>
+
+
+  <div class="post-content">
+    <pre class="Agda"><a id="192" class="Keyword">module</a> <a id="199" href="/PLFA-zh/Equality/" class="Module">plfa.Equality</a> <a id="213" class="Keyword">where</a></pre>
+
+<p>我们在论证的过程中经常会使用相等性。给定两个都为 <code class="highlighter-rouge">A</code> 类型的项 <code class="highlighter-rouge">M</code> 和 <code class="highlighter-rouge">N</code>，
+我们用 <code class="highlighter-rouge">M ≡ N</code> 来表示 <code class="highlighter-rouge">M</code> 和 <code class="highlighter-rouge">N</code> 可以相互替换。在此之前，
+我们将相等性作为一个基础运算，而现在我们来说明如果将其定义为一个归纳的数据类型。</p>
+
+<!-- Much of our reasoning has involved equality.  Given two terms `M`
+and `N`, both of type `A`, we write `M ≡ N` to assert that `M` and `N`
+are interchangeable.  So far we have treated equality as a primitive,
+here we show how to define it as an inductive datatype. -->
+
+<h2 id="导入">导入</h2>
+<!-- ## Imports -->
+
+<p>本章节没有导入的内容。本书的每一章节，以及 Agda 标准库的每个模块都导入了相等性。
+我们在此定义相等性，导入其他内容将会产生冲突。</p>
+
+<!-- This chapter has no imports.  Every chapter in this book, and nearly
+every module in the Agda standard library, imports equality.
+Since we define equality here, any import would create a conflict. -->
+
+<h2 id="相等性">相等性</h2>
+<!-- ## Equality -->
+
+<p>我们如下定义相等性：
+<!-- 
+We declare equality as follows:
+ --></p>
+<pre class="Agda"><a id="1067" class="Keyword">data</a> <a id="_≡_"></a><a id="1072" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">_≡_</a> <a id="1076" class="Symbol">{</a><a id="1077" href="/PLFA-zh/Equality/#1077" class="Bound">A</a> <a id="1079" class="Symbol">:</a> <a id="1081" class="PrimitiveType">Set</a><a id="1084" class="Symbol">}</a> <a id="1086" class="Symbol">(</a><a id="1087" href="/PLFA-zh/Equality/#1087" class="Bound">x</a> <a id="1089" class="Symbol">:</a> <a id="1091" href="/PLFA-zh/Equality/#1077" class="Bound">A</a><a id="1092" class="Symbol">)</a> <a id="1094" class="Symbol">:</a> <a id="1096" href="/PLFA-zh/Equality/#1077" class="Bound">A</a> <a id="1098" class="Symbol">→</a> <a id="1100" class="PrimitiveType">Set</a> <a id="1104" class="Keyword">where</a>
+  <a id="_≡_.refl"></a><a id="1112" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="1117" class="Symbol">:</a> <a id="1119" href="/PLFA-zh/Equality/#1087" class="Bound">x</a> <a id="1121" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="1123" href="/PLFA-zh/Equality/#1087" class="Bound">x</a></pre>
+
+<p>用其他的话来说，对于任意类型 <code class="highlighter-rouge">A</code> 和任意 <code class="highlighter-rouge">A</code> 类型的 <code class="highlighter-rouge">x</code>，构造器 <code class="highlighter-rouge">refl</code> 提供了
+<code class="highlighter-rouge">x ≡ x</code> 的证明。所以，每个值等同于它本身，我们并没有其他办法来证明值的相等性。
+这个定义里有不对称的地方，<code class="highlighter-rouge">_≡_</code> 的第一个参数（Argument）由 <code class="highlighter-rouge">x : A</code> 给出，
+而第二个参数（Argument）则是由 <code class="highlighter-rouge">A → Set</code> 的索引给出。
+这和我们尽可能多的使用参数（Parameter）的理念相符。<code class="highlighter-rouge">_≡_</code> 的第一个参数（Argument）
+可以作为一个参数（Parameter），因为它不会变，而第二个参数（Argument）则必须是一个索引，
+这样它才可以等用于第一个。
+<!-- 
+In other words, for any type `A` and for any `x` of type `A`, the
+constructor `refl` provides evidence that `x ≡ x`. Hence, every value
+is equal to itself, and we have no other way of showing values
+equal.  The definition features an asymmetry, in that the
+first argument to `_≡_` is given by the parameter `x : A`, while the
+second is given by an index in `A → Set`.  This follows our policy
+of using parameters wherever possible.  The first argument to `_≡_`
+can be a parameter because it doesn't vary, while the second must be
+an index, so it can be required to be equal to the first.
+ --></p>
+
+<p>我们如下定义相等性的优先级：
+<!-- 
+We declare the precedence of equality as follows:
+ --></p>
+<pre class="Agda"><a id="2138" class="Keyword">infix</a> <a id="2144" class="Number">4</a> <a id="2146" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">_≡_</a></pre>
+<p>我们将 <code class="highlighter-rouge">_≡_</code> 的优先级设置为 4，与 <code class="highlighter-rouge">_≤_</code> 相同，所以它没有算术运算符相比结合的紧密。
+它既不是左结合，也不是右结合的，因此 <code class="highlighter-rouge">x ≡ y ≡ z</code> 是不合法的。
+<!-- 
+We set the precedence of `_≡_` at level 4, the same as `_≤_`,
+which means it binds less tightly than any arithmetic operator.
+It associates neither to left nor right; writing `x ≡ y ≡ z`
+is illegal.
+ --></p>
+
+<h2 id="相等性是一个等价关系equivalence-relation">相等性是一个等价关系（Equivalence Relation）</h2>
+<!-- ## Equality is an equivalence relation -->
+
+<p>一个等价关系是自反、对称和传递的。其中自反性可以通过构造器 <code class="highlighter-rouge">refl</code> 直接从相等性的定义中得来。
+我们可以直接地证明其对称性：
+<!-- 
+An equivalence relation is one which is reflexive, symmetric, and transitive.
+Reflexivity is built-in to the definition of equality, via the
+constructor `refl`.  It is straightforward to show symmetry:
+ --></p>
+<pre class="Agda"><a id="sym"></a><a id="2857" href="/PLFA-zh/Equality/#2857" class="Function">sym</a> <a id="2861" class="Symbol">:</a> <a id="2863" class="Symbol">∀</a> <a id="2865" class="Symbol">{</a><a id="2866" href="/PLFA-zh/Equality/#2866" class="Bound">A</a> <a id="2868" class="Symbol">:</a> <a id="2870" class="PrimitiveType">Set</a><a id="2873" class="Symbol">}</a> <a id="2875" class="Symbol">{</a><a id="2876" href="/PLFA-zh/Equality/#2876" class="Bound">x</a> <a id="2878" href="/PLFA-zh/Equality/#2878" class="Bound">y</a> <a id="2880" class="Symbol">:</a> <a id="2882" href="/PLFA-zh/Equality/#2866" class="Bound">A</a><a id="2883" class="Symbol">}</a>
+  <a id="2887" class="Symbol">→</a> <a id="2889" href="/PLFA-zh/Equality/#2876" class="Bound">x</a> <a id="2891" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="2893" href="/PLFA-zh/Equality/#2878" class="Bound">y</a>
+    <a id="2899" class="Comment">-----</a>
+  <a id="2907" class="Symbol">→</a> <a id="2909" href="/PLFA-zh/Equality/#2878" class="Bound">y</a> <a id="2911" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="2913" href="/PLFA-zh/Equality/#2876" class="Bound">x</a>
+<a id="2915" href="/PLFA-zh/Equality/#2857" class="Function">sym</a> <a id="2919" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="2924" class="Symbol">=</a> <a id="2926" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+<p>这个证明是怎么运作的呢？<code class="highlighter-rouge">sym</code> 参数的类型是 <code class="highlighter-rouge">x ≡ y</code>，但是等式的左手边被 <code class="highlighter-rouge">refl</code> 模式实例化了，
+这要求 <code class="highlighter-rouge">x</code> 和 <code class="highlighter-rouge">y</code> 相等。因此，等式的右手边需要一个类型为 <code class="highlighter-rouge">x ≡ x</code> 的项，用 <code class="highlighter-rouge">refl</code> 即可。
+<!-- 
+How does this proof work? The argument to `sym` has type `x ≡ y`, but
+on the left-hand side of the equation the argument has been
+instantiated to the pattern `refl`, which requires that `x` and `y`
+are the same.  Hence, for the right-hand side of the equation we need
+a term of type `x ≡ x`, and `refl` will do.
+ --></p>
+
+<p>交互式地证明 <code class="highlighter-rouge">sym</code> 很有教育意义。首先，我们在左手边使用一个变量来表示参数，在右手边使用一个洞：
+<!-- 
+It is instructive to develop `sym` interactively.  To start, we supply
+a variable for the argument on the left, and a hole for the body on
+the right:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sym : ∀ {A : Set} {x y : A}
+  → x ≡ y
+    -----
+  → y ≡ x
+sym e = {! !}
+</code></pre></div></div>
+
+<p>如果我们进入这个洞，使用 <code class="highlighter-rouge">C-c C-,</code>，Agda 会告诉我们：
+<!-- 
+If we go into the hole and type `C-c C-,` then Agda reports:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Goal: .y ≡ .x
+————————————————————————————————————————————————————————————
+e  : .x ≡ .y
+.y : .A
+.x : .A
+.A : Set
+</code></pre></div></div>
+
+<p>在这个洞里，我们使用 <code class="highlighter-rouge">C-c C-c e</code>，Agda 会将 <code class="highlighter-rouge">e</code> 逐一展开为其所有可能的构造器。
+此处只有一个构造器：
+<!-- 
+If in the hole we type `C-c C-c e` then Agda will instantiate `e` to
+all possible constructors, with one equation for each. There is only
+one possible constructor:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sym : ∀ {A : Set} {x y : A}
+  → x ≡ y
+    -----
+  → y ≡ x
+sym refl = {! !}
+</code></pre></div></div>
+
+<p>如果我们再次进入这个洞，重新使用 <code class="highlighter-rouge">C-c C-,</code>，然后 Agda 现在会告诉我们：
+<!-- 
+If we go into the hole again and type `C-c C-,` then Agda now reports:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Goal: .x ≡ .x
+ ————————————————————————————————————————————————————————————
+ .x : .A
+ .A : Set
+</code></pre></div></div>
+
+<p>这是一个重要的步骤—— Agda 发现了 <code class="highlighter-rouge">x</code> 和 <code class="highlighter-rouge">y</code> 必须相等，才能与模式 <code class="highlighter-rouge">refl</code> 相匹配。
+<!-- 
+This is the key step---Agda has worked out that `x` and `y` must be
+the same to match the pattern `refl`!
+ --></p>
+
+<p>最后，我们回到洞里，使用 <code class="highlighter-rouge">C-c C-r</code>，Agda 将会把洞变成一个可以满足给定类型的构造器实例。
+<!-- 
+Finally, if we go back into the hole and type `C-c C-r` it will
+instantiate the hole with the one constructor that yields a value of
+the expected type:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sym : ∀ {A : Set} {x y : A}
+  → x ≡ y
+    -----
+  → y ≡ x
+sym refl = refl
+</code></pre></div></div>
+
+<p>我们至此完成了与之前给出证明相同的证明。
+<!-- 
+This completes the definition as given above.
+ --></p>
+
+<p>传递性亦是很直接：
+<!-- 
+Transitivity is equally straightforward:
+ --></p>
+<pre class="Agda"><a id="trans"></a><a id="5200" href="/PLFA-zh/Equality/#5200" class="Function">trans</a> <a id="5206" class="Symbol">:</a> <a id="5208" class="Symbol">∀</a> <a id="5210" class="Symbol">{</a><a id="5211" href="/PLFA-zh/Equality/#5211" class="Bound">A</a> <a id="5213" class="Symbol">:</a> <a id="5215" class="PrimitiveType">Set</a><a id="5218" class="Symbol">}</a> <a id="5220" class="Symbol">{</a><a id="5221" href="/PLFA-zh/Equality/#5221" class="Bound">x</a> <a id="5223" href="/PLFA-zh/Equality/#5223" class="Bound">y</a> <a id="5225" href="/PLFA-zh/Equality/#5225" class="Bound">z</a> <a id="5227" class="Symbol">:</a> <a id="5229" href="/PLFA-zh/Equality/#5211" class="Bound">A</a><a id="5230" class="Symbol">}</a>
+  <a id="5234" class="Symbol">→</a> <a id="5236" href="/PLFA-zh/Equality/#5221" class="Bound">x</a> <a id="5238" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="5240" href="/PLFA-zh/Equality/#5223" class="Bound">y</a>
+  <a id="5244" class="Symbol">→</a> <a id="5246" href="/PLFA-zh/Equality/#5223" class="Bound">y</a> <a id="5248" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="5250" href="/PLFA-zh/Equality/#5225" class="Bound">z</a>
+    <a id="5256" class="Comment">-----</a>
+  <a id="5264" class="Symbol">→</a> <a id="5266" href="/PLFA-zh/Equality/#5221" class="Bound">x</a> <a id="5268" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="5270" href="/PLFA-zh/Equality/#5225" class="Bound">z</a>
+<a id="5272" href="/PLFA-zh/Equality/#5200" class="Function">trans</a> <a id="5278" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="5283" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>  <a id="5289" class="Symbol">=</a>  <a id="5292" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+<p>同样，交互式地证明这个特性是一个很好的练习，尤其是观察 Agda 的已知内容根据参数的实例而变化的过程。
+<!-- 
+Again, a useful exercise is to carry out an interactive development,
+checking how Agda's knowledge changes as each of the two arguments is
+instantiated.
+ --></p>
+
+<h2 id="cong">同余性和替换性</h2>
+<!-- ## Congruence and substitution {#cong} -->
+
+<p>相等性满足 <em>同余性</em>（Congurence）。如果两个项相等，那么对它们使用相同的函数，
+其结果仍然相等：
+<!-- 
+Equality satisfies _congruence_.  If two terms are equal,
+they remain so after the same function is applied to both:
+ --></p>
+<pre class="Agda"><a id="cong"></a><a id="5810" href="/PLFA-zh/Equality/#5810" class="Function">cong</a> <a id="5815" class="Symbol">:</a> <a id="5817" class="Symbol">∀</a> <a id="5819" class="Symbol">{</a><a id="5820" href="/PLFA-zh/Equality/#5820" class="Bound">A</a> <a id="5822" href="/PLFA-zh/Equality/#5822" class="Bound">B</a> <a id="5824" class="Symbol">:</a> <a id="5826" class="PrimitiveType">Set</a><a id="5829" class="Symbol">}</a> <a id="5831" class="Symbol">(</a><a id="5832" href="/PLFA-zh/Equality/#5832" class="Bound">f</a> <a id="5834" class="Symbol">:</a> <a id="5836" href="/PLFA-zh/Equality/#5820" class="Bound">A</a> <a id="5838" class="Symbol">→</a> <a id="5840" href="/PLFA-zh/Equality/#5822" class="Bound">B</a><a id="5841" class="Symbol">)</a> <a id="5843" class="Symbol">{</a><a id="5844" href="/PLFA-zh/Equality/#5844" class="Bound">x</a> <a id="5846" href="/PLFA-zh/Equality/#5846" class="Bound">y</a> <a id="5848" class="Symbol">:</a> <a id="5850" href="/PLFA-zh/Equality/#5820" class="Bound">A</a><a id="5851" class="Symbol">}</a>
+  <a id="5855" class="Symbol">→</a> <a id="5857" href="/PLFA-zh/Equality/#5844" class="Bound">x</a> <a id="5859" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="5861" href="/PLFA-zh/Equality/#5846" class="Bound">y</a>
+    <a id="5867" class="Comment">---------</a>
+  <a id="5879" class="Symbol">→</a> <a id="5881" href="/PLFA-zh/Equality/#5832" class="Bound">f</a> <a id="5883" href="/PLFA-zh/Equality/#5844" class="Bound">x</a> <a id="5885" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="5887" href="/PLFA-zh/Equality/#5832" class="Bound">f</a> <a id="5889" href="/PLFA-zh/Equality/#5846" class="Bound">y</a>
+<a id="5891" href="/PLFA-zh/Equality/#5810" class="Function">cong</a> <a id="5896" href="/PLFA-zh/Equality/#5896" class="Bound">f</a> <a id="5898" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>  <a id="5904" class="Symbol">=</a>  <a id="5907" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+
+<p>两个参数的函数也满足同余性：
+<!-- 
+Congruence of functions with two arguments is similar:
+ --></p>
+<pre class="Agda"><a id="cong₂"></a><a id="6024" href="/PLFA-zh/Equality/#6024" class="Function">cong₂</a> <a id="6030" class="Symbol">:</a> <a id="6032" class="Symbol">∀</a> <a id="6034" class="Symbol">{</a><a id="6035" href="/PLFA-zh/Equality/#6035" class="Bound">A</a> <a id="6037" href="/PLFA-zh/Equality/#6037" class="Bound">B</a> <a id="6039" href="/PLFA-zh/Equality/#6039" class="Bound">C</a> <a id="6041" class="Symbol">:</a> <a id="6043" class="PrimitiveType">Set</a><a id="6046" class="Symbol">}</a> <a id="6048" class="Symbol">(</a><a id="6049" href="/PLFA-zh/Equality/#6049" class="Bound">f</a> <a id="6051" class="Symbol">:</a> <a id="6053" href="/PLFA-zh/Equality/#6035" class="Bound">A</a> <a id="6055" class="Symbol">→</a> <a id="6057" href="/PLFA-zh/Equality/#6037" class="Bound">B</a> <a id="6059" class="Symbol">→</a> <a id="6061" href="/PLFA-zh/Equality/#6039" class="Bound">C</a><a id="6062" class="Symbol">)</a> <a id="6064" class="Symbol">{</a><a id="6065" href="/PLFA-zh/Equality/#6065" class="Bound">u</a> <a id="6067" href="/PLFA-zh/Equality/#6067" class="Bound">x</a> <a id="6069" class="Symbol">:</a> <a id="6071" href="/PLFA-zh/Equality/#6035" class="Bound">A</a><a id="6072" class="Symbol">}</a> <a id="6074" class="Symbol">{</a><a id="6075" href="/PLFA-zh/Equality/#6075" class="Bound">v</a> <a id="6077" href="/PLFA-zh/Equality/#6077" class="Bound">y</a> <a id="6079" class="Symbol">:</a> <a id="6081" href="/PLFA-zh/Equality/#6037" class="Bound">B</a><a id="6082" class="Symbol">}</a>
+  <a id="6086" class="Symbol">→</a> <a id="6088" href="/PLFA-zh/Equality/#6065" class="Bound">u</a> <a id="6090" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6092" href="/PLFA-zh/Equality/#6067" class="Bound">x</a>
+  <a id="6096" class="Symbol">→</a> <a id="6098" href="/PLFA-zh/Equality/#6075" class="Bound">v</a> <a id="6100" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6102" href="/PLFA-zh/Equality/#6077" class="Bound">y</a>
+    <a id="6108" class="Comment">-------------</a>
+  <a id="6124" class="Symbol">→</a> <a id="6126" href="/PLFA-zh/Equality/#6049" class="Bound">f</a> <a id="6128" href="/PLFA-zh/Equality/#6065" class="Bound">u</a> <a id="6130" href="/PLFA-zh/Equality/#6075" class="Bound">v</a> <a id="6132" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6134" href="/PLFA-zh/Equality/#6049" class="Bound">f</a> <a id="6136" href="/PLFA-zh/Equality/#6067" class="Bound">x</a> <a id="6138" href="/PLFA-zh/Equality/#6077" class="Bound">y</a>
+<a id="6140" href="/PLFA-zh/Equality/#6024" class="Function">cong₂</a> <a id="6146" href="/PLFA-zh/Equality/#6146" class="Bound">f</a> <a id="6148" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="6153" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>  <a id="6159" class="Symbol">=</a>  <a id="6162" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+
+<p>在函数上的等价性也满足同余性。如果两个函数是相等的，那么它们作用在同一项上的结果是相等的：
+<!-- 
+Equality is also a congruence in the function position of an application.
+If two functions are equal, then applying them to the same term
+yields equal terms:
+ --></p>
+<pre class="Agda"><a id="cong-app"></a><a id="6413" href="/PLFA-zh/Equality/#6413" class="Function">cong-app</a> <a id="6422" class="Symbol">:</a> <a id="6424" class="Symbol">∀</a> <a id="6426" class="Symbol">{</a><a id="6427" href="/PLFA-zh/Equality/#6427" class="Bound">A</a> <a id="6429" href="/PLFA-zh/Equality/#6429" class="Bound">B</a> <a id="6431" class="Symbol">:</a> <a id="6433" class="PrimitiveType">Set</a><a id="6436" class="Symbol">}</a> <a id="6438" class="Symbol">{</a><a id="6439" href="/PLFA-zh/Equality/#6439" class="Bound">f</a> <a id="6441" href="/PLFA-zh/Equality/#6441" class="Bound">g</a> <a id="6443" class="Symbol">:</a> <a id="6445" href="/PLFA-zh/Equality/#6427" class="Bound">A</a> <a id="6447" class="Symbol">→</a> <a id="6449" href="/PLFA-zh/Equality/#6429" class="Bound">B</a><a id="6450" class="Symbol">}</a>
+  <a id="6454" class="Symbol">→</a> <a id="6456" href="/PLFA-zh/Equality/#6439" class="Bound">f</a> <a id="6458" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6460" href="/PLFA-zh/Equality/#6441" class="Bound">g</a>
+    <a id="6466" class="Comment">---------------------</a>
+  <a id="6490" class="Symbol">→</a> <a id="6492" class="Symbol">∀</a> <a id="6494" class="Symbol">(</a><a id="6495" href="/PLFA-zh/Equality/#6495" class="Bound">x</a> <a id="6497" class="Symbol">:</a> <a id="6499" href="/PLFA-zh/Equality/#6427" class="Bound">A</a><a id="6500" class="Symbol">)</a> <a id="6502" class="Symbol">→</a> <a id="6504" href="/PLFA-zh/Equality/#6439" class="Bound">f</a> <a id="6506" href="/PLFA-zh/Equality/#6495" class="Bound">x</a> <a id="6508" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6510" href="/PLFA-zh/Equality/#6441" class="Bound">g</a> <a id="6512" href="/PLFA-zh/Equality/#6495" class="Bound">x</a>
+<a id="6514" href="/PLFA-zh/Equality/#6413" class="Function">cong-app</a> <a id="6523" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="6528" href="/PLFA-zh/Equality/#6528" class="Bound">x</a> <a id="6530" class="Symbol">=</a> <a id="6532" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+
+<p>相等性也满足<em>替换性</em>（Substitution）。
+如果两个值相等，其中一个满足某谓词，那么另一个也满足此谓词。
+<!-- 
+Equality also satisfies *substitution*.
+If two values are equal and a predicate holds of the first then it also holds of the second:
+ --></p>
+<pre class="Agda"><a id="subst"></a><a id="6770" href="/PLFA-zh/Equality/#6770" class="Function">subst</a> <a id="6776" class="Symbol">:</a> <a id="6778" class="Symbol">∀</a> <a id="6780" class="Symbol">{</a><a id="6781" href="/PLFA-zh/Equality/#6781" class="Bound">A</a> <a id="6783" class="Symbol">:</a> <a id="6785" class="PrimitiveType">Set</a><a id="6788" class="Symbol">}</a> <a id="6790" class="Symbol">{</a><a id="6791" href="/PLFA-zh/Equality/#6791" class="Bound">x</a> <a id="6793" href="/PLFA-zh/Equality/#6793" class="Bound">y</a> <a id="6795" class="Symbol">:</a> <a id="6797" href="/PLFA-zh/Equality/#6781" class="Bound">A</a><a id="6798" class="Symbol">}</a> <a id="6800" class="Symbol">(</a><a id="6801" href="/PLFA-zh/Equality/#6801" class="Bound">P</a> <a id="6803" class="Symbol">:</a> <a id="6805" href="/PLFA-zh/Equality/#6781" class="Bound">A</a> <a id="6807" class="Symbol">→</a> <a id="6809" class="PrimitiveType">Set</a><a id="6812" class="Symbol">)</a>
+  <a id="6816" class="Symbol">→</a> <a id="6818" href="/PLFA-zh/Equality/#6791" class="Bound">x</a> <a id="6820" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="6822" href="/PLFA-zh/Equality/#6793" class="Bound">y</a>
+    <a id="6828" class="Comment">---------</a>
+  <a id="6840" class="Symbol">→</a> <a id="6842" href="/PLFA-zh/Equality/#6801" class="Bound">P</a> <a id="6844" href="/PLFA-zh/Equality/#6791" class="Bound">x</a> <a id="6846" class="Symbol">→</a> <a id="6848" href="/PLFA-zh/Equality/#6801" class="Bound">P</a> <a id="6850" href="/PLFA-zh/Equality/#6793" class="Bound">y</a>
+<a id="6852" href="/PLFA-zh/Equality/#6770" class="Function">subst</a> <a id="6858" href="/PLFA-zh/Equality/#6858" class="Bound">P</a> <a id="6860" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a> <a id="6865" href="/PLFA-zh/Equality/#6865" class="Bound">px</a> <a id="6868" class="Symbol">=</a> <a id="6870" href="/PLFA-zh/Equality/#6865" class="Bound">px</a></pre>
+
+<h2 id="等式串">等式串</h2>
+<!-- ## Chains of equations -->
+
+<p>我们在此演示如何使用等式串来论证，正如本书中使用证明形式。我们讲声明放在一个叫做
+<code class="highlighter-rouge">≡-Reasoning</code> 的模块里，与 Agda 标准库中的格式相对应。
+<!-- 
+Here we show how to support reasoning with chains of equations, as
+used throughout the book.  We package the declarations into a module,
+named `≡-Reasoning`, to match the format used in Agda's standard
+library:
+ --></p>
+<pre class="Agda"><a id="7253" class="Keyword">module</a> <a id="≡-Reasoning"></a><a id="7260" href="/PLFA-zh/Equality/#7260" class="Module">≡-Reasoning</a> <a id="7272" class="Symbol">{</a><a id="7273" href="/PLFA-zh/Equality/#7273" class="Bound">A</a> <a id="7275" class="Symbol">:</a> <a id="7277" class="PrimitiveType">Set</a><a id="7280" class="Symbol">}</a> <a id="7282" class="Keyword">where</a>
+
+  <a id="7291" class="Keyword">infix</a>  <a id="7298" class="Number">1</a> <a id="7300" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin_</a>
+  <a id="7309" class="Keyword">infixr</a> <a id="7316" class="Number">2</a> <a id="7318" href="/PLFA-zh/Equality/#7428" class="Function Operator">_≡⟨⟩_</a> <a id="7324" href="/PLFA-zh/Equality/#7513" class="Function Operator">_≡⟨_⟩_</a>
+  <a id="7333" class="Keyword">infix</a>  <a id="7340" class="Number">3</a> <a id="7342" href="/PLFA-zh/Equality/#7628" class="Function Operator">_∎</a>
+
+  <a id="≡-Reasoning.begin_"></a><a id="7348" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin_</a> <a id="7355" class="Symbol">:</a> <a id="7357" class="Symbol">∀</a> <a id="7359" class="Symbol">{</a><a id="7360" href="/PLFA-zh/Equality/#7360" class="Bound">x</a> <a id="7362" href="/PLFA-zh/Equality/#7362" class="Bound">y</a> <a id="7364" class="Symbol">:</a> <a id="7366" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7367" class="Symbol">}</a>
+    <a id="7373" class="Symbol">→</a> <a id="7375" href="/PLFA-zh/Equality/#7360" class="Bound">x</a> <a id="7377" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7379" href="/PLFA-zh/Equality/#7362" class="Bound">y</a>
+      <a id="7387" class="Comment">-----</a>
+    <a id="7397" class="Symbol">→</a> <a id="7399" href="/PLFA-zh/Equality/#7360" class="Bound">x</a> <a id="7401" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7403" href="/PLFA-zh/Equality/#7362" class="Bound">y</a>
+  <a id="7407" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin</a> <a id="7413" href="/PLFA-zh/Equality/#7413" class="Bound">x≡y</a>  <a id="7418" class="Symbol">=</a>  <a id="7421" href="/PLFA-zh/Equality/#7413" class="Bound">x≡y</a>
+
+  <a id="≡-Reasoning._≡⟨⟩_"></a><a id="7428" href="/PLFA-zh/Equality/#7428" class="Function Operator">_≡⟨⟩_</a> <a id="7434" class="Symbol">:</a> <a id="7436" class="Symbol">∀</a> <a id="7438" class="Symbol">(</a><a id="7439" href="/PLFA-zh/Equality/#7439" class="Bound">x</a> <a id="7441" class="Symbol">:</a> <a id="7443" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7444" class="Symbol">)</a> <a id="7446" class="Symbol">{</a><a id="7447" href="/PLFA-zh/Equality/#7447" class="Bound">y</a> <a id="7449" class="Symbol">:</a> <a id="7451" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7452" class="Symbol">}</a>
+    <a id="7458" class="Symbol">→</a> <a id="7460" href="/PLFA-zh/Equality/#7439" class="Bound">x</a> <a id="7462" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7464" href="/PLFA-zh/Equality/#7447" class="Bound">y</a>
+      <a id="7472" class="Comment">-----</a>
+    <a id="7482" class="Symbol">→</a> <a id="7484" href="/PLFA-zh/Equality/#7439" class="Bound">x</a> <a id="7486" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7488" href="/PLFA-zh/Equality/#7447" class="Bound">y</a>
+  <a id="7492" href="/PLFA-zh/Equality/#7492" class="Bound">x</a> <a id="7494" href="/PLFA-zh/Equality/#7428" class="Function Operator">≡⟨⟩</a> <a id="7498" href="/PLFA-zh/Equality/#7498" class="Bound">x≡y</a>  <a id="7503" class="Symbol">=</a>  <a id="7506" href="/PLFA-zh/Equality/#7498" class="Bound">x≡y</a>
+
+  <a id="≡-Reasoning._≡⟨_⟩_"></a><a id="7513" href="/PLFA-zh/Equality/#7513" class="Function Operator">_≡⟨_⟩_</a> <a id="7520" class="Symbol">:</a> <a id="7522" class="Symbol">∀</a> <a id="7524" class="Symbol">(</a><a id="7525" href="/PLFA-zh/Equality/#7525" class="Bound">x</a> <a id="7527" class="Symbol">:</a> <a id="7529" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7530" class="Symbol">)</a> <a id="7532" class="Symbol">{</a><a id="7533" href="/PLFA-zh/Equality/#7533" class="Bound">y</a> <a id="7535" href="/PLFA-zh/Equality/#7535" class="Bound">z</a> <a id="7537" class="Symbol">:</a> <a id="7539" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7540" class="Symbol">}</a>
+    <a id="7546" class="Symbol">→</a> <a id="7548" href="/PLFA-zh/Equality/#7525" class="Bound">x</a> <a id="7550" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7552" href="/PLFA-zh/Equality/#7533" class="Bound">y</a>
+    <a id="7558" class="Symbol">→</a> <a id="7560" href="/PLFA-zh/Equality/#7533" class="Bound">y</a> <a id="7562" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7564" href="/PLFA-zh/Equality/#7535" class="Bound">z</a>
+      <a id="7572" class="Comment">-----</a>
+    <a id="7582" class="Symbol">→</a> <a id="7584" href="/PLFA-zh/Equality/#7525" class="Bound">x</a> <a id="7586" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7588" href="/PLFA-zh/Equality/#7535" class="Bound">z</a>
+  <a id="7592" href="/PLFA-zh/Equality/#7592" class="Bound">x</a> <a id="7594" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="7597" href="/PLFA-zh/Equality/#7597" class="Bound">x≡y</a> <a id="7601" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a> <a id="7603" href="/PLFA-zh/Equality/#7603" class="Bound">y≡z</a>  <a id="7608" class="Symbol">=</a>  <a id="7611" href="/PLFA-zh/Equality/#5200" class="Function">trans</a> <a id="7617" href="/PLFA-zh/Equality/#7597" class="Bound">x≡y</a> <a id="7621" href="/PLFA-zh/Equality/#7603" class="Bound">y≡z</a>
+
+  <a id="≡-Reasoning._∎"></a><a id="7628" href="/PLFA-zh/Equality/#7628" class="Function Operator">_∎</a> <a id="7631" class="Symbol">:</a> <a id="7633" class="Symbol">∀</a> <a id="7635" class="Symbol">(</a><a id="7636" href="/PLFA-zh/Equality/#7636" class="Bound">x</a> <a id="7638" class="Symbol">:</a> <a id="7640" href="/PLFA-zh/Equality/#7273" class="Bound">A</a><a id="7641" class="Symbol">)</a>
+      <a id="7649" class="Comment">-----</a>
+    <a id="7659" class="Symbol">→</a> <a id="7661" href="/PLFA-zh/Equality/#7636" class="Bound">x</a> <a id="7663" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="7665" href="/PLFA-zh/Equality/#7636" class="Bound">x</a>
+  <a id="7669" href="/PLFA-zh/Equality/#7669" class="Bound">x</a> <a id="7671" href="/PLFA-zh/Equality/#7628" class="Function Operator">∎</a>  <a id="7674" class="Symbol">=</a>  <a id="7677" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>
+
+<a id="7683" class="Keyword">open</a> <a id="7688" href="/PLFA-zh/Equality/#7260" class="Module">≡-Reasoning</a></pre>
+<p>这是我们第一次使用嵌套的模块。它包括了关键字 <code class="highlighter-rouge">module</code> 和后续的模块名、隐式或显式参数，
+关键字 <code class="highlighter-rouge">where</code>，和模块中的内容（在缩进内）。模块里可以包括任何形式的声明，也可以包括其他模块。
+嵌套的模块和本书每章节所定义的顶层模块相似，只是顶层模块不需要缩进。
+打开（Open）一个模块会把模块内的所有定义导入进当前的环境中。</p>
+
+<!-- This is our first use of a nested module. It consists of the keyword
+`module` followed by the module name and any parameters, explicit or
+implicit, the keyword `where`, and the contents of the module indented.
+Modules may contain any sort of declaration, including other nested modules.
+Nested modules are similar to the top-level modules that constitute
+each chapter of this book, save that the body of a top-level module
+need not be indented.  Opening the module makes all of the definitions
+available in the current environment. -->
+
+<p>举个例子，我们来看看如何用等式串证明传递性：
+<!-- 
+As an example, let's look at a proof of transitivity
+as a chain of equations:
+ --></p>
+<pre class="Agda"><a id="trans′"></a><a id="8562" href="/PLFA-zh/Equality/#8562" class="Function">trans′</a> <a id="8569" class="Symbol">:</a> <a id="8571" class="Symbol">∀</a> <a id="8573" class="Symbol">{</a><a id="8574" href="/PLFA-zh/Equality/#8574" class="Bound">A</a> <a id="8576" class="Symbol">:</a> <a id="8578" class="PrimitiveType">Set</a><a id="8581" class="Symbol">}</a> <a id="8583" class="Symbol">{</a><a id="8584" href="/PLFA-zh/Equality/#8584" class="Bound">x</a> <a id="8586" href="/PLFA-zh/Equality/#8586" class="Bound">y</a> <a id="8588" href="/PLFA-zh/Equality/#8588" class="Bound">z</a> <a id="8590" class="Symbol">:</a> <a id="8592" href="/PLFA-zh/Equality/#8574" class="Bound">A</a><a id="8593" class="Symbol">}</a>
+  <a id="8597" class="Symbol">→</a> <a id="8599" href="/PLFA-zh/Equality/#8584" class="Bound">x</a> <a id="8601" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="8603" href="/PLFA-zh/Equality/#8586" class="Bound">y</a>
+  <a id="8607" class="Symbol">→</a> <a id="8609" href="/PLFA-zh/Equality/#8586" class="Bound">y</a> <a id="8611" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="8613" href="/PLFA-zh/Equality/#8588" class="Bound">z</a>
+    <a id="8619" class="Comment">-----</a>
+  <a id="8627" class="Symbol">→</a> <a id="8629" href="/PLFA-zh/Equality/#8584" class="Bound">x</a> <a id="8631" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="8633" href="/PLFA-zh/Equality/#8588" class="Bound">z</a>
+<a id="8635" href="/PLFA-zh/Equality/#8562" class="Function">trans′</a> <a id="8642" class="Symbol">{</a><a id="8643" href="/PLFA-zh/Equality/#8643" class="Bound">A</a><a id="8644" class="Symbol">}</a> <a id="8646" class="Symbol">{</a><a id="8647" href="/PLFA-zh/Equality/#8647" class="Bound">x</a><a id="8648" class="Symbol">}</a> <a id="8650" class="Symbol">{</a><a id="8651" href="/PLFA-zh/Equality/#8651" class="Bound">y</a><a id="8652" class="Symbol">}</a> <a id="8654" class="Symbol">{</a><a id="8655" href="/PLFA-zh/Equality/#8655" class="Bound">z</a><a id="8656" class="Symbol">}</a> <a id="8658" href="/PLFA-zh/Equality/#8658" class="Bound">x≡y</a> <a id="8662" href="/PLFA-zh/Equality/#8662" class="Bound">y≡z</a> <a id="8666" class="Symbol">=</a>
+  <a id="8670" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin</a>
+    <a id="8680" href="/PLFA-zh/Equality/#8647" class="Bound">x</a>
+  <a id="8684" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="8687" href="/PLFA-zh/Equality/#8658" class="Bound">x≡y</a> <a id="8691" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a>
+    <a id="8697" href="/PLFA-zh/Equality/#8651" class="Bound">y</a>
+  <a id="8701" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="8704" href="/PLFA-zh/Equality/#8662" class="Bound">y≡z</a> <a id="8708" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a>
+    <a id="8714" href="/PLFA-zh/Equality/#8655" class="Bound">z</a>
+  <a id="8718" href="/PLFA-zh/Equality/#7628" class="Function Operator">∎</a></pre>
+<p>根据其定义，等式右边会被解析成如下：
+<!-- 
+According to the fixity declarations, the body parses as follows:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>begin (x ≡⟨ x≡y ⟩ (y ≡⟨ y≡z ⟩ (z ∎)))
+</code></pre></div></div>
+
+<p>这里 <code class="highlighter-rouge">begin</code> 的使用纯粹是装饰性的，因为它直接返回了其参数。其参数包括了
+<code class="highlighter-rouge">_≡⟨_⟩_</code> 作用于 <code class="highlighter-rouge">x</code>、<code class="highlighter-rouge">x≡y</code> 和 <code class="highlighter-rouge">y ≡⟨ y≡z ⟩ (z ∎)</code>。第一个参数是一个项 <code class="highlighter-rouge">x</code>，
+而第二、第三个参数分别是等式 <code class="highlighter-rouge">x ≡ y</code>、<code class="highlighter-rouge">y ≡ z</code> 的证明，它们在 <code class="highlighter-rouge">_≡⟨_⟩_</code> 的定义中用
+<code class="highlighter-rouge">trans</code> 连接起来，形成 <code class="highlighter-rouge">x ≡ z</code> 的证明。<code class="highlighter-rouge">y ≡ z</code> 的证明包括了 <code class="highlighter-rouge">_≡⟨_⟩_</code> 作用于 <code class="highlighter-rouge">y</code>、
+<code class="highlighter-rouge">y≡z</code> 和 <code class="highlighter-rouge">z ∎</code>。第一个参数是一个项 <code class="highlighter-rouge">y</code>，而第二、第三个参数分别是等式 <code class="highlighter-rouge">y ≡ z</code>、<code class="highlighter-rouge">z ≡ z</code> 的证明，
+它们在 <code class="highlighter-rouge">_≡⟨_⟩_</code> 的定义中用 <code class="highlighter-rouge">trans</code> 连接起来，形成 <code class="highlighter-rouge">y ≡ z</code> 的证明。最后，<code class="highlighter-rouge">z ≡ z</code>
+的证明包括了 <code class="highlighter-rouge">_∎</code> 作用于 <code class="highlighter-rouge">z</code> 之上，使用了 <code class="highlighter-rouge">refl</code>。经过化简，上述定义等同于：
+<!-- 
+The application of `begin` is purely cosmetic, as it simply returns
+its argument.  That argument consists of `_≡⟨_⟩_` applied to `x`,
+`x≡y`, and `y ≡⟨ y≡z ⟩ (z ∎)`.  The first argument is a term, `x`,
+while the second and third arguments are both proofs of equations, in
+particular proofs of `x ≡ y` and `y ≡ z` respectively, which are
+combined by `trans` in the body of `_≡⟨_⟩_` to yield a proof of `x ≡
+z`.  The proof of `y ≡ z` consists of `_≡⟨_⟩_` applied to `y`, `y≡z`,
+and `z ∎`.  The first argument is a term, `y`, while the second and
+third arguments are both proofs of equations, in particular proofs of
+`y ≡ z` and `z ≡ z` respectively, which are combined by `trans` in the
+body of `_≡⟨_⟩_` to yield a proof of `y ≡ z`.  Finally, the proof of
+`z ≡ z` consists of `_∎` applied to the term `z`, which yields `refl`.
+After simplification, the body is equivalent to the term:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>trans x≡y (trans y≡z refl)
+</code></pre></div></div>
+
+<p>我们可以把任意等式串转化成一系列的 <code class="highlighter-rouge">trans</code> 的使用。这样的证明更加精简，但是更难以阅读。
+<code class="highlighter-rouge">∎</code> 的小窍门意味着等式串化简成为的一系列 <code class="highlighter-rouge">trans</code> 会以 <code class="highlighter-rouge">trans e refl</code> 结尾，尽管只需要 <code class="highlighter-rouge">e</code>
+就足够了，这里的 <code class="highlighter-rouge">e</code> 是等式的证明。
+<!-- 
+We could replace any use of a chain of equations by a chain of
+applications of `trans`; the result would be more compact but harder
+to read.  The trick behind `∎` means that a chain of equalities
+simplifies to a chain of applications of `trans` than ends in `trans e
+refl`, where `e` is a term that proves some equality, even though `e`
+alone would do.
+ --></p>
+
+<h2 id="等式串的另外一个例子">等式串的另外一个例子</h2>
+<!-- ## Chains of equations, another example -->
+
+<p>我们重新证明加法的交换律来作为等式串的第二个例子。我们首先重复自然数和加法的定义。
+我们不能导入它们（正如本章节开头中所解释的那样），因为那样会产生一个冲突：
+<!-- 
+As a second example of chains of equations, we repeat the proof that addition
+is commutative.  We first repeat the definitions of naturals and addition.
+We cannot import them because (as noted at the beginning of this chapter)
+it would cause a conflict:
+ --></p>
+<pre class="Agda"><a id="11133" class="Keyword">data</a> <a id="ℕ"></a><a id="11138" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="11140" class="Symbol">:</a> <a id="11142" class="PrimitiveType">Set</a> <a id="11146" class="Keyword">where</a>
+  <a id="ℕ.zero"></a><a id="11154" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a> <a id="11159" class="Symbol">:</a> <a id="11161" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a>
+  <a id="ℕ.suc"></a><a id="11165" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a>  <a id="11170" class="Symbol">:</a> <a id="11172" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="11174" class="Symbol">→</a> <a id="11176" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a>
+
+<a id="_+_"></a><a id="11179" href="/PLFA-zh/Equality/#11179" class="Function Operator">_+_</a> <a id="11183" class="Symbol">:</a> <a id="11185" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="11187" class="Symbol">→</a> <a id="11189" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="11191" class="Symbol">→</a> <a id="11193" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a>
+<a id="11195" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a>    <a id="11203" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11205" href="/PLFA-zh/Equality/#11205" class="Bound">n</a>  <a id="11208" class="Symbol">=</a>  <a id="11211" href="/PLFA-zh/Equality/#11205" class="Bound">n</a>
+<a id="11213" class="Symbol">(</a><a id="11214" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="11218" href="/PLFA-zh/Equality/#11218" class="Bound">m</a><a id="11219" class="Symbol">)</a> <a id="11221" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11223" href="/PLFA-zh/Equality/#11223" class="Bound">n</a>  <a id="11226" class="Symbol">=</a>  <a id="11229" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="11233" class="Symbol">(</a><a id="11234" href="/PLFA-zh/Equality/#11218" class="Bound">m</a> <a id="11236" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11238" href="/PLFA-zh/Equality/#11223" class="Bound">n</a><a id="11239" class="Symbol">)</a></pre>
+
+<p>为了节约空间，我们假设两条引理（而不是证明它们）：
+<!-- 
+To save space we postulate (rather than prove in full) two lemmas:
+ --></p>
+<pre class="Agda"><a id="11376" class="Keyword">postulate</a>
+  <a id="+-identity"></a><a id="11388" href="/PLFA-zh/Equality/#11388" class="Postulate">+-identity</a> <a id="11399" class="Symbol">:</a> <a id="11401" class="Symbol">∀</a> <a id="11403" class="Symbol">(</a><a id="11404" href="/PLFA-zh/Equality/#11404" class="Bound">m</a> <a id="11406" class="Symbol">:</a> <a id="11408" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="11409" class="Symbol">)</a> <a id="11411" class="Symbol">→</a> <a id="11413" href="/PLFA-zh/Equality/#11404" class="Bound">m</a> <a id="11415" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11417" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a> <a id="11422" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="11424" href="/PLFA-zh/Equality/#11404" class="Bound">m</a>
+  <a id="+-suc"></a><a id="11428" href="/PLFA-zh/Equality/#11428" class="Postulate">+-suc</a> <a id="11434" class="Symbol">:</a> <a id="11436" class="Symbol">∀</a> <a id="11438" class="Symbol">(</a><a id="11439" href="/PLFA-zh/Equality/#11439" class="Bound">m</a> <a id="11441" href="/PLFA-zh/Equality/#11441" class="Bound">n</a> <a id="11443" class="Symbol">:</a> <a id="11445" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="11446" class="Symbol">)</a> <a id="11448" class="Symbol">→</a> <a id="11450" href="/PLFA-zh/Equality/#11439" class="Bound">m</a> <a id="11452" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11454" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="11458" href="/PLFA-zh/Equality/#11441" class="Bound">n</a> <a id="11460" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="11462" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="11466" class="Symbol">(</a><a id="11467" href="/PLFA-zh/Equality/#11439" class="Bound">m</a> <a id="11469" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="11471" href="/PLFA-zh/Equality/#11441" class="Bound">n</a><a id="11472" class="Symbol">)</a></pre>
+<p>这是我们第一次使用<em>假设</em>（Postulate）。假设为一个标识符指定一个签名，但是不提供定义。
+我们在这里假设之前证明过的东西，来节约空间。假设在使用时必须加以注意。如果假设的内容为假，
+那么我们可以证明出任何东西。
+<!-- 
+This is our first use of a _postulate_.  A postulate specifies a
+signature for an identifier but no definition.  Here we postulate
+something proved earlier to save space.  Postulates must be used with
+caution.  If we postulate something false then we could use Agda to
+prove anything whatsoever.
+ --></p>
+
+<p>我们接下来重复交换律的证明：
+<!-- 
+We then repeat the proof of commutativity:
+ --></p>
+<pre class="Agda"><a id="+-comm"></a><a id="11997" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="12004" class="Symbol">:</a> <a id="12006" class="Symbol">∀</a> <a id="12008" class="Symbol">(</a><a id="12009" href="/PLFA-zh/Equality/#12009" class="Bound">m</a> <a id="12011" href="/PLFA-zh/Equality/#12011" class="Bound">n</a> <a id="12013" class="Symbol">:</a> <a id="12015" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="12016" class="Symbol">)</a> <a id="12018" class="Symbol">→</a> <a id="12020" href="/PLFA-zh/Equality/#12009" class="Bound">m</a> <a id="12022" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12024" href="/PLFA-zh/Equality/#12011" class="Bound">n</a> <a id="12026" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="12028" href="/PLFA-zh/Equality/#12011" class="Bound">n</a> <a id="12030" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12032" href="/PLFA-zh/Equality/#12009" class="Bound">m</a>
+<a id="12034" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="12041" href="/PLFA-zh/Equality/#12041" class="Bound">m</a> <a id="12043" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a> <a id="12048" class="Symbol">=</a>
+  <a id="12052" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin</a>
+    <a id="12062" href="/PLFA-zh/Equality/#12041" class="Bound">m</a> <a id="12064" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12066" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a>
+  <a id="12073" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="12076" href="/PLFA-zh/Equality/#11388" class="Postulate">+-identity</a> <a id="12087" href="/PLFA-zh/Equality/#12041" class="Bound">m</a> <a id="12089" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a>
+    <a id="12095" href="/PLFA-zh/Equality/#12041" class="Bound">m</a>
+  <a id="12099" href="/PLFA-zh/Equality/#7428" class="Function Operator">≡⟨⟩</a>
+    <a id="12107" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a> <a id="12112" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12114" href="/PLFA-zh/Equality/#12041" class="Bound">m</a>
+  <a id="12118" href="/PLFA-zh/Equality/#7628" class="Function Operator">∎</a>
+<a id="12120" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="12127" href="/PLFA-zh/Equality/#12127" class="Bound">m</a> <a id="12129" class="Symbol">(</a><a id="12130" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12134" href="/PLFA-zh/Equality/#12134" class="Bound">n</a><a id="12135" class="Symbol">)</a> <a id="12137" class="Symbol">=</a>
+  <a id="12141" href="/PLFA-zh/Equality/#7348" class="Function Operator">begin</a>
+    <a id="12151" href="/PLFA-zh/Equality/#12127" class="Bound">m</a> <a id="12153" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12155" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12159" href="/PLFA-zh/Equality/#12134" class="Bound">n</a>
+  <a id="12163" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="12166" href="/PLFA-zh/Equality/#11428" class="Postulate">+-suc</a> <a id="12172" href="/PLFA-zh/Equality/#12127" class="Bound">m</a> <a id="12174" href="/PLFA-zh/Equality/#12134" class="Bound">n</a> <a id="12176" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a>
+    <a id="12182" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12186" class="Symbol">(</a><a id="12187" href="/PLFA-zh/Equality/#12127" class="Bound">m</a> <a id="12189" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12191" href="/PLFA-zh/Equality/#12134" class="Bound">n</a><a id="12192" class="Symbol">)</a>
+  <a id="12196" href="/PLFA-zh/Equality/#7513" class="Function Operator">≡⟨</a> <a id="12199" href="/PLFA-zh/Equality/#5810" class="Function">cong</a> <a id="12204" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12208" class="Symbol">(</a><a id="12209" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="12216" href="/PLFA-zh/Equality/#12127" class="Bound">m</a> <a id="12218" href="/PLFA-zh/Equality/#12134" class="Bound">n</a><a id="12219" class="Symbol">)</a> <a id="12221" href="/PLFA-zh/Equality/#7513" class="Function Operator">⟩</a>
+    <a id="12227" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12231" class="Symbol">(</a><a id="12232" href="/PLFA-zh/Equality/#12134" class="Bound">n</a> <a id="12234" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12236" href="/PLFA-zh/Equality/#12127" class="Bound">m</a><a id="12237" class="Symbol">)</a>
+  <a id="12241" href="/PLFA-zh/Equality/#7428" class="Function Operator">≡⟨⟩</a>
+    <a id="12249" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="12253" href="/PLFA-zh/Equality/#12134" class="Bound">n</a> <a id="12255" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="12257" href="/PLFA-zh/Equality/#12127" class="Bound">m</a>
+  <a id="12261" href="/PLFA-zh/Equality/#7628" class="Function Operator">∎</a></pre>
+<p>论证的过程和之前的相似。我们在不需要解释的地方使用 <code class="highlighter-rouge">_≡⟨⟩_</code>，我们可以认为
+<code class="highlighter-rouge">_≡⟨⟩_</code> 和 <code class="highlighter-rouge">_≡⟨ refl ⟩_</code> 是等价的。
+<!-- 
+The reasoning here is similar to that in the
+preceding section.  We use
+`_≡⟨⟩_` when no justification is required.
+One can think of `_≡⟨⟩_` as equivalent to `_≡⟨ refl ⟩_`.
+ --></p>
+
+<p>Agda 总是认为一个项与其化简的项是等价的。我们之所以可以写出
+<!-- 
+Agda always treats a term as equivalent to its
+simplified term.  The reason that one can write
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  suc (n + m)
+≡⟨⟩
+  suc n + m
+</code></pre></div></div>
+
+<p>是因为 Agda 认为它们是一样的。这也意味着我们可以交换两行的顺序，写出
+<!-- 
+is because Agda treats both terms as the same.
+This also means that one could instead interchange
+the lines and write
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  suc n + m
+≡⟨⟩
+  suc (n + m)
+</code></pre></div></div>
+
+<p>而 Agda 并不会反对。Agda 只会检查由 <code class="highlighter-rouge">≡⟨⟩</code> 隔开的项是否化简后相同。
+而书写的顺序合不合理则是由我们自行决定。
+<!-- 
+and Agda would not object. Agda only checks that the terms separated
+by `≡⟨⟩` have the same simplified form; it's up to us to write them in
+an order that will make sense to the reader.
+ --></p>
+
+<h4 id="练习--reasoning-延伸">练习 <code class="highlighter-rouge">≤-reasoning</code> (延伸)</h4>
+<!-- #### Exercise `≤-reasoning` (stretch) -->
+
+<p><a href="/PLFA-zh/Relations/">Relations</a> 章节中的单调性证明亦可以用相似于 <code class="highlighter-rouge">≡-reasoning</code> 的，更易于理解的形式给出。
+相似地来定义 <code class="highlighter-rouge">≤-reasoning</code>，并用其重新给出加法对于不等式是单调的证明。重写 <code class="highlighter-rouge">+-monoˡ-≤</code> 和 <code class="highlighter-rouge">+-mono-≤</code>。
+<!-- 
+The proof of monotonicity from
+Chapter [Relations](/PLFA-zh/Relations/)
+can be written in a more readable form by using an analogue of our
+notation for `≡-reasoning`.  Define `≤-reasoning` analogously, and use
+it to write out an alternative proof that addition is monotonic with
+regard to inequality.  Rewrite both `+-monoˡ-≤` and `+-mono-≤`.
+ --></p>
+
+<pre class="Agda"><a id="13805" class="Comment">-- 在此处书写你的代码</a></pre>
+
+<h2 id="重写">重写</h2>
+<!-- ## Rewriting -->
+
+<p>考虑一个自然数的性质，比如说一个数是偶数。我们重复之前给出的定义：
+<!-- 
+Consider a property of natural numbers, such as being even.
+We repeat the earlier definition:
+ --></p>
+<pre class="Agda"><a id="14026" class="Keyword">data</a> <a id="even"></a><a id="14031" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="14036" class="Symbol">:</a> <a id="14038" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="14040" class="Symbol">→</a> <a id="14042" class="PrimitiveType">Set</a>
+<a id="14046" class="Keyword">data</a> <a id="odd"></a><a id="14051" href="/PLFA-zh/Equality/#14051" class="Datatype">odd</a>  <a id="14056" class="Symbol">:</a> <a id="14058" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a> <a id="14060" class="Symbol">→</a> <a id="14062" class="PrimitiveType">Set</a>
+
+<a id="14067" class="Keyword">data</a> <a id="14072" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="14077" class="Keyword">where</a>
+
+  <a id="even.even-zero"></a><a id="14086" href="/PLFA-zh/Equality/#14086" class="InductiveConstructor">even-zero</a> <a id="14096" class="Symbol">:</a> <a id="14098" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="14103" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a>
+
+  <a id="even.even-suc"></a><a id="14111" href="/PLFA-zh/Equality/#14111" class="InductiveConstructor">even-suc</a> <a id="14120" class="Symbol">:</a> <a id="14122" class="Symbol">∀</a> <a id="14124" class="Symbol">{</a><a id="14125" href="/PLFA-zh/Equality/#14125" class="Bound">n</a> <a id="14127" class="Symbol">:</a> <a id="14129" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="14130" class="Symbol">}</a>
+    <a id="14136" class="Symbol">→</a> <a id="14138" href="/PLFA-zh/Equality/#14051" class="Datatype">odd</a> <a id="14142" href="/PLFA-zh/Equality/#14125" class="Bound">n</a>
+      <a id="14150" class="Comment">------------</a>
+    <a id="14167" class="Symbol">→</a> <a id="14169" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="14174" class="Symbol">(</a><a id="14175" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="14179" href="/PLFA-zh/Equality/#14125" class="Bound">n</a><a id="14180" class="Symbol">)</a>
+
+<a id="14183" class="Keyword">data</a> <a id="14188" href="/PLFA-zh/Equality/#14051" class="Datatype">odd</a> <a id="14192" class="Keyword">where</a>
+  <a id="odd.odd-suc"></a><a id="14200" href="/PLFA-zh/Equality/#14200" class="InductiveConstructor">odd-suc</a> <a id="14208" class="Symbol">:</a> <a id="14210" class="Symbol">∀</a> <a id="14212" class="Symbol">{</a><a id="14213" href="/PLFA-zh/Equality/#14213" class="Bound">n</a> <a id="14215" class="Symbol">:</a> <a id="14217" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="14218" class="Symbol">}</a>
+    <a id="14224" class="Symbol">→</a> <a id="14226" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="14231" href="/PLFA-zh/Equality/#14213" class="Bound">n</a>
+      <a id="14239" class="Comment">-----------</a>
+    <a id="14255" class="Symbol">→</a> <a id="14257" href="/PLFA-zh/Equality/#14051" class="Datatype">odd</a> <a id="14261" class="Symbol">(</a><a id="14262" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="14266" href="/PLFA-zh/Equality/#14213" class="Bound">n</a><a id="14267" class="Symbol">)</a></pre>
+<p>在前面的部分中，我们证明了加法满足交换律。给定 <code class="highlighter-rouge">even (m + n)</code> 成立的证据，我们应当可以用它来做
+<code class="highlighter-rouge">even (n + m)</code> 成立的证据。
+<!-- 
+In the previous section, we proved addition is commutative.  Given
+evidence that `even (m + n)` holds, we ought also to be able to take
+that as evidence that `even (n + m)` holds.
+ --></p>
+
+<p>Agda 对这种论证有特殊记法的支持——我们之前提到过的 <code class="highlighter-rouge">rewrite</code> 记法。来启用这种记法，
+我们只用编译程序指令来告诉 Agda 什么类型对应相等性：
+<!-- 
+Agda includes special notation to support just this kind of reasoning,
+the `rewrite` notation we encountered earlier.
+To enable this notation, we use pragmas to tell Agda which type
+corresponds to equality:
+ --></p>
+<pre class="Agda"><a id="14874" class="Symbol">{-#</a> <a id="14878" class="Keyword">BUILTIN</a> EQUALITY <a id="14895" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">_≡_</a> <a id="14899" class="Symbol">#-}</a></pre>
+
+<p>我们然后就可以如下证明求证的性质：
+<!-- 
+We can then prove the desired property as follows:
+ --></p>
+<pre class="Agda"><a id="even-comm"></a><a id="15014" href="/PLFA-zh/Equality/#15014" class="Function">even-comm</a> <a id="15024" class="Symbol">:</a> <a id="15026" class="Symbol">∀</a> <a id="15028" class="Symbol">(</a><a id="15029" href="/PLFA-zh/Equality/#15029" class="Bound">m</a> <a id="15031" href="/PLFA-zh/Equality/#15031" class="Bound">n</a> <a id="15033" class="Symbol">:</a> <a id="15035" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="15036" class="Symbol">)</a>
+  <a id="15040" class="Symbol">→</a> <a id="15042" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="15047" class="Symbol">(</a><a id="15048" href="/PLFA-zh/Equality/#15029" class="Bound">m</a> <a id="15050" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="15052" href="/PLFA-zh/Equality/#15031" class="Bound">n</a><a id="15053" class="Symbol">)</a>
+    <a id="15059" class="Comment">------------</a>
+  <a id="15074" class="Symbol">→</a> <a id="15076" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="15081" class="Symbol">(</a><a id="15082" href="/PLFA-zh/Equality/#15031" class="Bound">n</a> <a id="15084" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="15086" href="/PLFA-zh/Equality/#15029" class="Bound">m</a><a id="15087" class="Symbol">)</a>
+<a id="15089" href="/PLFA-zh/Equality/#15014" class="Function">even-comm</a> <a id="15099" href="/PLFA-zh/Equality/#15099" class="Bound">m</a> <a id="15101" href="/PLFA-zh/Equality/#15101" class="Bound">n</a> <a id="15103" href="/PLFA-zh/Equality/#15103" class="Bound">ev</a>  <a id="15107" class="Keyword">rewrite</a> <a id="15115" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="15122" href="/PLFA-zh/Equality/#15101" class="Bound">n</a> <a id="15124" href="/PLFA-zh/Equality/#15099" class="Bound">m</a>  <a id="15127" class="Symbol">=</a>  <a id="15130" href="/PLFA-zh/Equality/#15103" class="Bound">ev</a></pre>
+
+<p>在这里，<code class="highlighter-rouge">ev</code> 包括了所有 <code class="highlighter-rouge">even (m + n)</code> 成立的证据，我们证明它亦可作为 <code class="highlighter-rouge">even (n + m)</code>
+成立的证据。一般来说，关键字 <code class="highlighter-rouge">rewrite</code> 之后跟着一个等式的证明，这个等式被用于重写目标和任意作用域内变量的类型。</p>
+
+<!-- Here `ev` ranges over evidence that `even (m + n)` holds, and we show
+that it also provides evidence that `even (n + m)` holds.  In
+general, the keyword `rewrite` is followed by evidence of an
+equality, and that equality is used to rewrite the type of the
+goal and of any variable in scope. -->
+
+<p>交互性地证明 <code class="highlighter-rouge">even-comm</code> 是很有帮助的。一开始，我们先给左边的参数赋予变量，给右手边放上一个洞：
+<!-- 
+It is instructive to develop `even-comm` interactively.  To start, we
+supply variables for the arguments on the left, and a hole for the
+body on the right:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>even-comm : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm m n ev = {! !}
+</code></pre></div></div>
+
+<p>如果我们进入洞里，输入 <code class="highlighter-rouge">C-c C-,</code>，Agda 会报告：
+<!-- 
+If we go into the hole and type `C-c C-,` then Agda reports:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Goal: even (n + m)
+————————————————————————————————————————————————————————————
+ev : even (m + n)
+n  : ℕ
+m  : ℕ
+</code></pre></div></div>
+
+<p>现在我们加入重写：
+<!-- 
+Now we add the rewrite:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>even-comm : ∀ (m n : ℕ)
+  → even (m + n)
+    ------------
+  → even (n + m)
+even-comm m n ev rewrite +-comm n m = {! !}
+</code></pre></div></div>
+
+<p>如果我们再次进入洞里，并输入 <code class="highlighter-rouge">C-c C-,</code>，Agda 现在会报告：
+<!-- 
+If we go into the hole again and type `C-c C-,` then Agda now reports:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Goal: even (m + n)
+————————————————————————————————————————————————————————————
+ev : even (m + n)
+n  : ℕ
+m  : ℕ
+</code></pre></div></div>
+
+<p>目标里的参数被交换了。现在 <code class="highlighter-rouge">ev</code> 显然满足目标条件，输入 <code class="highlighter-rouge">C-c C-a</code> 会用 <code class="highlighter-rouge">ev</code> 来填充这个洞。
+命令 <code class="highlighter-rouge">C-c C-a</code> 可以进行自动搜索，检查作用域内的变量是否和目标有相同的类型。
+<!-- 
+The arguments have been swapped in the goal.  Now it is trivial to see
+that `ev` satisfies the goal, and typing `C-c C-a` in the hole causes
+it to be filled with `ev`.  The command `C-c C-a` performs an
+automated search, including checking whether a variable in scope has
+the same type as the goal.
+ --></p>
+
+<h2 id="多重重写">多重重写</h2>
+<!-- ## Multiple rewrites -->
+
+<p>我们可以多次使用重写，以竖线隔开。举个例子，这里是加法交换律的第二个证明，使用重写而不是等式串：
+<!-- 
+One may perform multiple rewrites, each separated by a vertical bar.  For instance,
+here is a second proof that addition is commutative, relying on rewrites rather
+than chains of equalities:
+ --></p>
+<pre class="Agda"><a id="+-comm′"></a><a id="17358" href="/PLFA-zh/Equality/#17358" class="Function">+-comm′</a> <a id="17366" class="Symbol">:</a> <a id="17368" class="Symbol">∀</a> <a id="17370" class="Symbol">(</a><a id="17371" href="/PLFA-zh/Equality/#17371" class="Bound">m</a> <a id="17373" href="/PLFA-zh/Equality/#17373" class="Bound">n</a> <a id="17375" class="Symbol">:</a> <a id="17377" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="17378" class="Symbol">)</a> <a id="17380" class="Symbol">→</a> <a id="17382" href="/PLFA-zh/Equality/#17371" class="Bound">m</a> <a id="17384" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="17386" href="/PLFA-zh/Equality/#17373" class="Bound">n</a> <a id="17388" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="17390" href="/PLFA-zh/Equality/#17373" class="Bound">n</a> <a id="17392" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="17394" href="/PLFA-zh/Equality/#17371" class="Bound">m</a>
+<a id="17396" href="/PLFA-zh/Equality/#17358" class="Function">+-comm′</a> <a id="17404" href="/PLFA-zh/Equality/#11154" class="InductiveConstructor">zero</a>    <a id="17412" href="/PLFA-zh/Equality/#17412" class="Bound">n</a>  <a id="17415" class="Keyword">rewrite</a> <a id="17423" href="/PLFA-zh/Equality/#11388" class="Postulate">+-identity</a> <a id="17434" href="/PLFA-zh/Equality/#17412" class="Bound">n</a>             <a id="17448" class="Symbol">=</a>  <a id="17451" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>
+<a id="17456" href="/PLFA-zh/Equality/#17358" class="Function">+-comm′</a> <a id="17464" class="Symbol">(</a><a id="17465" href="/PLFA-zh/Equality/#11165" class="InductiveConstructor">suc</a> <a id="17469" href="/PLFA-zh/Equality/#17469" class="Bound">m</a><a id="17470" class="Symbol">)</a> <a id="17472" href="/PLFA-zh/Equality/#17472" class="Bound">n</a>  <a id="17475" class="Keyword">rewrite</a> <a id="17483" href="/PLFA-zh/Equality/#11428" class="Postulate">+-suc</a> <a id="17489" href="/PLFA-zh/Equality/#17472" class="Bound">n</a> <a id="17491" href="/PLFA-zh/Equality/#17469" class="Bound">m</a> <a id="17493" class="Symbol">|</a> <a id="17495" href="/PLFA-zh/Equality/#17358" class="Function">+-comm′</a> <a id="17503" href="/PLFA-zh/Equality/#17469" class="Bound">m</a> <a id="17505" href="/PLFA-zh/Equality/#17472" class="Bound">n</a>  <a id="17508" class="Symbol">=</a>  <a id="17511" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a></pre>
+<p>这个证明更加的简短。之前的证明用 <code class="highlighter-rouge">cong suc (+-comm m n)</code> 作为使用归纳假设的说明，
+而这里我们使用 <code class="highlighter-rouge">+-comm m n</code> 来重写就足够了，因为重写可以将同余性考虑在其中。尽管使用重写的证明更加的简短，
+使用等式串的证明能容易理解，我们将尽可能的使用后者。
+<!-- 
+This is far more compact.  Among other things, whereas the previous
+proof required `cong suc (+-comm m n)` as the justification to invoke
+the inductive hypothesis, here it is sufficient to rewrite with
+`+-comm m n`, as rewriting automatically takes congruence into
+account.  Although proofs with rewriting are shorter, proofs as chains
+of equalities are easier to follow, and we will stick with the latter
+when feasible.
+ --></p>
+
+<h2 id="深入重写">深入重写</h2>
+<!-- ## Rewriting expanded -->
+
+<p><code class="highlighter-rouge">rewrite</code> 记法实际上是 <code class="highlighter-rouge">with</code> 抽象的一种应用：
+<!-- 
+The `rewrite` notation is in fact shorthand for an appropriate use of `with`
+abstraction:
+ --></p>
+<pre class="Agda"><a id="even-comm′"></a><a id="18309" href="/PLFA-zh/Equality/#18309" class="Function">even-comm′</a> <a id="18320" class="Symbol">:</a> <a id="18322" class="Symbol">∀</a> <a id="18324" class="Symbol">(</a><a id="18325" href="/PLFA-zh/Equality/#18325" class="Bound">m</a> <a id="18327" href="/PLFA-zh/Equality/#18327" class="Bound">n</a> <a id="18329" class="Symbol">:</a> <a id="18331" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="18332" class="Symbol">)</a>
+  <a id="18336" class="Symbol">→</a> <a id="18338" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="18343" class="Symbol">(</a><a id="18344" href="/PLFA-zh/Equality/#18325" class="Bound">m</a> <a id="18346" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="18348" href="/PLFA-zh/Equality/#18327" class="Bound">n</a><a id="18349" class="Symbol">)</a>
+    <a id="18355" class="Comment">------------</a>
+  <a id="18370" class="Symbol">→</a> <a id="18372" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="18377" class="Symbol">(</a><a id="18378" href="/PLFA-zh/Equality/#18327" class="Bound">n</a> <a id="18380" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="18382" href="/PLFA-zh/Equality/#18325" class="Bound">m</a><a id="18383" class="Symbol">)</a>
+<a id="18385" href="/PLFA-zh/Equality/#18309" class="Function">even-comm′</a> <a id="18396" href="/PLFA-zh/Equality/#18396" class="Bound">m</a> <a id="18398" href="/PLFA-zh/Equality/#18398" class="Bound">n</a> <a id="18400" href="/PLFA-zh/Equality/#18400" class="Bound">ev</a> <a id="18403" class="Keyword">with</a>   <a id="18410" href="/PLFA-zh/Equality/#18396" class="Bound">m</a> <a id="18412" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="18414" href="/PLFA-zh/Equality/#18398" class="Bound">n</a>  <a id="18417" class="Symbol">|</a> <a id="18419" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="18426" href="/PLFA-zh/Equality/#18396" class="Bound">m</a> <a id="18428" href="/PLFA-zh/Equality/#18398" class="Bound">n</a>
+<a id="18430" class="Symbol">...</a>                  <a id="18451" class="Symbol">|</a> <a id="18453" class="DottedPattern Symbol">.(</a><a id="18455" class="DottedPattern Bound">n</a> <a id="18457" href="/PLFA-zh/Equality/#11179" class="DottedPattern Function Operator">+</a> <a id="18459" class="DottedPattern Bound">m</a><a id="18460" class="DottedPattern Symbol">)</a> <a id="18462" class="Symbol">|</a> <a id="18464" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>       <a id="18475" class="Symbol">=</a> <a id="18477" class="Bound">ev</a></pre>
+<p>总的来着，我们可以在 <code class="highlighter-rouge">with</code> 后面跟上任何数量的表达式，用竖线分隔开，并且在每个等式中使用相同个数的模式。
+我们经常将表达式和模式如上对齐。这个第一列表明了 <code class="highlighter-rouge">m + n</code> 和 <code class="highlighter-rouge">n + m</code> 是相同的，第二列使用相应等式来证明的前述的断言。
+注意在这里使用的<em>点模式</em>（Dot Pattern），<code class="highlighter-rouge">.(n + m)</code>。点模式由一个点和一个表达式组成，
+在其他信息迫使这个值和点模式中的值相等时使用。在这里，<code class="highlighter-rouge">m + n</code> 和 <code class="highlighter-rouge">n + m</code> 由后续的
+<code class="highlighter-rouge">+-comm m n</code> 与 <code class="highlighter-rouge">refl</code> 的匹配来识别。我们可能会认为第一种情况是多余的，因为第二种情况中才蕴含了需要的信息。
+但实际上 Agda 在这件事上很挑剔——省略第一条或者更换顺序会让 Agda 报告一个错误。（试一试你就知道！）
+<!-- 
+In general, one can follow `with` by any number of expressions,
+separated by bars, where each following equation has the same number
+of patterns.  We often write expressions and the corresponding
+patterns so they line up in columns, as above. Here the first column
+asserts that `m + n` and `n + m` are identical, and the second column
+justifies that assertion with evidence of the appropriate equality.
+Note also the use of the _dot pattern_, `.(n + m)`.  A dot pattern
+consists of a dot followed by an expression, and is used when other
+information forces the value matched to be equal to the value of the
+expression in the dot pattern.  In this case, the identification of
+`m + n` and `n + m` is justified by the subsequent matching of
+`+-comm m n` against `refl`.  One might think that the first clause is
+redundant as the information is inherent in the second clause, but in
+fact Agda is rather picky on this point: omitting the first clause or
+reversing the order of the clauses will cause Agda to report an error.
+(Try it and see!)
+ --></p>
+
+<p>在这种情况中，我们也可以使用之前定义的替换函数来避免使用重写：
+<!-- 
+In this case, we can avoid rewrite by simply applying the substitution
+function defined earlier:
+ --></p>
+<pre class="Agda"><a id="even-comm″"></a><a id="20058" href="/PLFA-zh/Equality/#20058" class="Function">even-comm″</a> <a id="20069" class="Symbol">:</a> <a id="20071" class="Symbol">∀</a> <a id="20073" class="Symbol">(</a><a id="20074" href="/PLFA-zh/Equality/#20074" class="Bound">m</a> <a id="20076" href="/PLFA-zh/Equality/#20076" class="Bound">n</a> <a id="20078" class="Symbol">:</a> <a id="20080" href="/PLFA-zh/Equality/#11138" class="Datatype">ℕ</a><a id="20081" class="Symbol">)</a>
+  <a id="20085" class="Symbol">→</a> <a id="20087" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="20092" class="Symbol">(</a><a id="20093" href="/PLFA-zh/Equality/#20074" class="Bound">m</a> <a id="20095" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="20097" href="/PLFA-zh/Equality/#20076" class="Bound">n</a><a id="20098" class="Symbol">)</a>
+    <a id="20104" class="Comment">------------</a>
+  <a id="20119" class="Symbol">→</a> <a id="20121" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="20126" class="Symbol">(</a><a id="20127" href="/PLFA-zh/Equality/#20076" class="Bound">n</a> <a id="20129" href="/PLFA-zh/Equality/#11179" class="Function Operator">+</a> <a id="20131" href="/PLFA-zh/Equality/#20074" class="Bound">m</a><a id="20132" class="Symbol">)</a>
+<a id="20134" href="/PLFA-zh/Equality/#20058" class="Function">even-comm″</a> <a id="20145" href="/PLFA-zh/Equality/#20145" class="Bound">m</a> <a id="20147" href="/PLFA-zh/Equality/#20147" class="Bound">n</a>  <a id="20150" class="Symbol">=</a>  <a id="20153" href="/PLFA-zh/Equality/#6770" class="Function">subst</a> <a id="20159" href="/PLFA-zh/Equality/#14031" class="Datatype">even</a> <a id="20164" class="Symbol">(</a><a id="20165" href="/PLFA-zh/Equality/#11997" class="Function">+-comm</a> <a id="20172" href="/PLFA-zh/Equality/#20145" class="Bound">m</a> <a id="20174" href="/PLFA-zh/Equality/#20147" class="Bound">n</a><a id="20175" class="Symbol">)</a></pre>
+<p>尽管如此，重写是 Agda 工具箱中很重要的一部分。我们会偶尔使用它，但是它有的时候是必要的。
+<!-- 
+Nonetheless, rewrite is a vital part of the Agda toolkit.  We will use
+it sparingly, but it is occasionally essential.
+ --></p>
+
+<h2 id="莱布尼兹leibniz相等性">莱布尼兹（Leibniz）相等性</h2>
+<!-- ## Leibniz equality -->
+
+<p>我们使用的相等性断言的形式源于 Martin Löf，于 1975 年发表。一个更早的形式源于莱布尼兹，
+于 1686 年发表。莱布尼兹断言的相等性表示<em>不可分辨的实体</em>（Identity of Indiscernibles）：
+两个对象相等当且仅当它们满足完全相同的性质。这条原理有时被称作莱布尼兹定律（Leibniz’ Law），
+与史波克定律紧密相关：“一个不造成区别的区别不是区别”。我们在这里定义莱布尼兹相等性，
+并证明两个项满足莱布尼兹相等性当且仅当其满足 Martin Löf 相等性。
+<!-- 
+The form of asserting equality that we have used is due to Martin
+Löf, and was published in 1975.  An older form is due to Leibniz, and
+was published in 1686.  Leibniz asserted the _identity of
+indiscernibles_: two objects are equal if and only if they satisfy the
+same properties. This principle sometimes goes by the name Leibniz'
+Law, and is closely related to Spock's Law, "A difference that makes
+no difference is no difference".  Here we define Leibniz equality,
+and show that two terms satisfy Leibniz equality if and only if they
+satisfy Martin Löf equality.
+ --></p>
+
+<p>莱布尼兹不等式一般如下来定义：<code class="highlighter-rouge">x ≐ y</code> 当每个对于 <code class="highlighter-rouge">x</code> 成立的性质 <code class="highlighter-rouge">P</code> 对于 <code class="highlighter-rouge">y</code> 也成立时成立。
+可能这有些出乎意料，但是这个定义亦足够保证其相反的命题：每个对于 <code class="highlighter-rouge">y</code> 成立的性质 <code class="highlighter-rouge">P</code> 对于 <code class="highlighter-rouge">x</code> 也成立。
+<!-- 
+Leibniz equality is usually formalised to state that `x ≐ y` holds if
+every property `P` that holds of `x` also holds of `y`.  Perhaps
+surprisingly, this definition is sufficient to also ensure the
+converse, that every property `P` that holds of `y` also holds of `x`.
+ --></p>
+
+<p>令 <code class="highlighter-rouge">x</code> 和 <code class="highlighter-rouge">y</code> 为类型 <code class="highlighter-rouge">A</code> 的对象。我们定义 <code class="highlighter-rouge">x ≐ y</code> 成立，当每个对于类型 <code class="highlighter-rouge">A</code> 成立的谓词 <code class="highlighter-rouge">P</code>，
+我们有 <code class="highlighter-rouge">P x</code> 蕴含了 <code class="highlighter-rouge">P y</code>：
+<!-- 
+Let `x` and `y` be objects of type `A`. We say that `x ≐ y` holds if
+for every predicate `P` over type `A` we have that `P x` implies `P y`:
+ --></p>
+<pre class="Agda"><a id="_≐_"></a><a id="21926" href="/PLFA-zh/Equality/#21926" class="Function Operator">_≐_</a> <a id="21930" class="Symbol">:</a> <a id="21932" class="Symbol">∀</a> <a id="21934" class="Symbol">{</a><a id="21935" href="/PLFA-zh/Equality/#21935" class="Bound">A</a> <a id="21937" class="Symbol">:</a> <a id="21939" class="PrimitiveType">Set</a><a id="21942" class="Symbol">}</a> <a id="21944" class="Symbol">(</a><a id="21945" href="/PLFA-zh/Equality/#21945" class="Bound">x</a> <a id="21947" href="/PLFA-zh/Equality/#21947" class="Bound">y</a> <a id="21949" class="Symbol">:</a> <a id="21951" href="/PLFA-zh/Equality/#21935" class="Bound">A</a><a id="21952" class="Symbol">)</a> <a id="21954" class="Symbol">→</a> <a id="21956" class="PrimitiveType">Set₁</a>
+<a id="21961" href="/PLFA-zh/Equality/#21926" class="Function Operator">_≐_</a> <a id="21965" class="Symbol">{</a><a id="21966" href="/PLFA-zh/Equality/#21966" class="Bound">A</a><a id="21967" class="Symbol">}</a> <a id="21969" href="/PLFA-zh/Equality/#21969" class="Bound">x</a> <a id="21971" href="/PLFA-zh/Equality/#21971" class="Bound">y</a> <a id="21973" class="Symbol">=</a> <a id="21975" class="Symbol">∀</a> <a id="21977" class="Symbol">(</a><a id="21978" href="/PLFA-zh/Equality/#21978" class="Bound">P</a> <a id="21980" class="Symbol">:</a> <a id="21982" href="/PLFA-zh/Equality/#21966" class="Bound">A</a> <a id="21984" class="Symbol">→</a> <a id="21986" class="PrimitiveType">Set</a><a id="21989" class="Symbol">)</a> <a id="21991" class="Symbol">→</a> <a id="21993" href="/PLFA-zh/Equality/#21978" class="Bound">P</a> <a id="21995" href="/PLFA-zh/Equality/#21969" class="Bound">x</a> <a id="21997" class="Symbol">→</a> <a id="21999" href="/PLFA-zh/Equality/#21978" class="Bound">P</a> <a id="22001" href="/PLFA-zh/Equality/#21971" class="Bound">y</a></pre>
+<p>我们不能在左手边使用 <code class="highlighter-rouge">x ≐ y</code>，取而代之我们使用 <code class="highlighter-rouge">_≐_ {A} x y</code> 来提供隐式参数 <code class="highlighter-rouge">A</code>，这样 <code class="highlighter-rouge">A</code>
+可以出现在右手边。
+<!-- 
+We cannot write the left-hand side of the equation as `x ≐ y`,
+and instead we write `_≐_ {A} x y` to provide access to the implicit
+parameter `A` which appears on the right-hand side.
+ --></p>
+
+<p>这是我们第一次使用<em>等级</em>（Levels）。我们不能将 <code class="highlighter-rouge">Set</code> 赋予类型 <code class="highlighter-rouge">Set</code>，因为这会导致自相矛盾，
+比如罗素悖论（Russell’s Paradox）或者 Girard 悖论。不同的是，我们有一个阶级的类型：其中
+<code class="highlighter-rouge">Set : Set₁</code>，<code class="highlighter-rouge">Set₁ : Set₂</code>，以此类推。实际上，<code class="highlighter-rouge">Set</code> 本身就是 <code class="highlighter-rouge">Set₀</code> 的缩写。定义
+<code class="highlighter-rouge">_≐_</code> 的等式在右手边提到了 <code class="highlighter-rouge">Set</code>，因此签名中必须使用 <code class="highlighter-rouge">Set₁</code>。我们稍后将进一步介绍等级。
+<!-- 
+This is our first use of _levels_.  We cannot assign `Set` the type
+`Set`, since this would lead to contradictions such as Russell's
+Paradox and Girard's Paradox.  Instead, there is a hierarchy of types,
+where `Set : Set₁`, `Set₁ : Set₂`, and so on.  In fact, `Set` itself
+is just an abbreviation for `Set₀`.  Since the equation defining `_≐_`
+mentions `Set` on the right-hand side, the corresponding signature
+must use `Set₁`.  We say a bit more about levels below.
+ --></p>
+
+<p>莱布尼兹相等性是自反和传递的。自反性由恒等函数的变种得来，传递性由函数组合的变种得来：
+<!-- 
+Leibniz equality is reflexive and transitive,
+where the first follows by a variant of the identity function
+and the second by a variant of function composition:
+ --></p>
+<pre class="Agda"><a id="refl-≐"></a><a id="23236" href="/PLFA-zh/Equality/#23236" class="Function">refl-≐</a> <a id="23243" class="Symbol">:</a> <a id="23245" class="Symbol">∀</a> <a id="23247" class="Symbol">{</a><a id="23248" href="/PLFA-zh/Equality/#23248" class="Bound">A</a> <a id="23250" class="Symbol">:</a> <a id="23252" class="PrimitiveType">Set</a><a id="23255" class="Symbol">}</a> <a id="23257" class="Symbol">{</a><a id="23258" href="/PLFA-zh/Equality/#23258" class="Bound">x</a> <a id="23260" class="Symbol">:</a> <a id="23262" href="/PLFA-zh/Equality/#23248" class="Bound">A</a><a id="23263" class="Symbol">}</a>
+  <a id="23267" class="Symbol">→</a> <a id="23269" href="/PLFA-zh/Equality/#23258" class="Bound">x</a> <a id="23271" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23273" href="/PLFA-zh/Equality/#23258" class="Bound">x</a>
+<a id="23275" href="/PLFA-zh/Equality/#23236" class="Function">refl-≐</a> <a id="23282" href="/PLFA-zh/Equality/#23282" class="Bound">P</a> <a id="23284" href="/PLFA-zh/Equality/#23284" class="Bound">Px</a>  <a id="23288" class="Symbol">=</a>  <a id="23291" href="/PLFA-zh/Equality/#23284" class="Bound">Px</a>
+
+<a id="trans-≐"></a><a id="23295" href="/PLFA-zh/Equality/#23295" class="Function">trans-≐</a> <a id="23303" class="Symbol">:</a> <a id="23305" class="Symbol">∀</a> <a id="23307" class="Symbol">{</a><a id="23308" href="/PLFA-zh/Equality/#23308" class="Bound">A</a> <a id="23310" class="Symbol">:</a> <a id="23312" class="PrimitiveType">Set</a><a id="23315" class="Symbol">}</a> <a id="23317" class="Symbol">{</a><a id="23318" href="/PLFA-zh/Equality/#23318" class="Bound">x</a> <a id="23320" href="/PLFA-zh/Equality/#23320" class="Bound">y</a> <a id="23322" href="/PLFA-zh/Equality/#23322" class="Bound">z</a> <a id="23324" class="Symbol">:</a> <a id="23326" href="/PLFA-zh/Equality/#23308" class="Bound">A</a><a id="23327" class="Symbol">}</a>
+  <a id="23331" class="Symbol">→</a> <a id="23333" href="/PLFA-zh/Equality/#23318" class="Bound">x</a> <a id="23335" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23337" href="/PLFA-zh/Equality/#23320" class="Bound">y</a>
+  <a id="23341" class="Symbol">→</a> <a id="23343" href="/PLFA-zh/Equality/#23320" class="Bound">y</a> <a id="23345" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23347" href="/PLFA-zh/Equality/#23322" class="Bound">z</a>
+    <a id="23353" class="Comment">-----</a>
+  <a id="23361" class="Symbol">→</a> <a id="23363" href="/PLFA-zh/Equality/#23318" class="Bound">x</a> <a id="23365" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23367" href="/PLFA-zh/Equality/#23322" class="Bound">z</a>
+<a id="23369" href="/PLFA-zh/Equality/#23295" class="Function">trans-≐</a> <a id="23377" href="/PLFA-zh/Equality/#23377" class="Bound">x≐y</a> <a id="23381" href="/PLFA-zh/Equality/#23381" class="Bound">y≐z</a> <a id="23385" href="/PLFA-zh/Equality/#23385" class="Bound">P</a> <a id="23387" href="/PLFA-zh/Equality/#23387" class="Bound">Px</a>  <a id="23391" class="Symbol">=</a>  <a id="23394" href="/PLFA-zh/Equality/#23381" class="Bound">y≐z</a> <a id="23398" href="/PLFA-zh/Equality/#23385" class="Bound">P</a> <a id="23400" class="Symbol">(</a><a id="23401" href="/PLFA-zh/Equality/#23377" class="Bound">x≐y</a> <a id="23405" href="/PLFA-zh/Equality/#23385" class="Bound">P</a> <a id="23407" href="/PLFA-zh/Equality/#23387" class="Bound">Px</a><a id="23409" class="Symbol">)</a></pre>
+
+<p>对称性就没有那么显然了。我们需要证明如果对于所有谓词 <code class="highlighter-rouge">P</code>，<code class="highlighter-rouge">P x</code> 蕴含 <code class="highlighter-rouge">P y</code>，
+那么反方向的蕴含也成立。
+<!-- 
+Symmetry is less obvious.  We have to show that if `P x` implies `P y`
+for all predicates `P`, then the implication holds the other way round
+as well:
+ --></p>
+<pre class="Agda"><a id="sym-≐"></a><a id="23664" href="/PLFA-zh/Equality/#23664" class="Function">sym-≐</a> <a id="23670" class="Symbol">:</a> <a id="23672" class="Symbol">∀</a> <a id="23674" class="Symbol">{</a><a id="23675" href="/PLFA-zh/Equality/#23675" class="Bound">A</a> <a id="23677" class="Symbol">:</a> <a id="23679" class="PrimitiveType">Set</a><a id="23682" class="Symbol">}</a> <a id="23684" class="Symbol">{</a><a id="23685" href="/PLFA-zh/Equality/#23685" class="Bound">x</a> <a id="23687" href="/PLFA-zh/Equality/#23687" class="Bound">y</a> <a id="23689" class="Symbol">:</a> <a id="23691" href="/PLFA-zh/Equality/#23675" class="Bound">A</a><a id="23692" class="Symbol">}</a>
+  <a id="23696" class="Symbol">→</a> <a id="23698" href="/PLFA-zh/Equality/#23685" class="Bound">x</a> <a id="23700" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23702" href="/PLFA-zh/Equality/#23687" class="Bound">y</a>
+    <a id="23708" class="Comment">-----</a>
+  <a id="23716" class="Symbol">→</a> <a id="23718" href="/PLFA-zh/Equality/#23687" class="Bound">y</a> <a id="23720" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="23722" href="/PLFA-zh/Equality/#23685" class="Bound">x</a>
+<a id="23724" href="/PLFA-zh/Equality/#23664" class="Function">sym-≐</a> <a id="23730" class="Symbol">{</a><a id="23731" href="/PLFA-zh/Equality/#23731" class="Bound">A</a><a id="23732" class="Symbol">}</a> <a id="23734" class="Symbol">{</a><a id="23735" href="/PLFA-zh/Equality/#23735" class="Bound">x</a><a id="23736" class="Symbol">}</a> <a id="23738" class="Symbol">{</a><a id="23739" href="/PLFA-zh/Equality/#23739" class="Bound">y</a><a id="23740" class="Symbol">}</a> <a id="23742" href="/PLFA-zh/Equality/#23742" class="Bound">x≐y</a> <a id="23746" href="/PLFA-zh/Equality/#23746" class="Bound">P</a>  <a id="23749" class="Symbol">=</a>  <a id="23752" href="/PLFA-zh/Equality/#23834" class="Function">Qy</a>
+  <a id="23757" class="Keyword">where</a>
+    <a id="23767" href="/PLFA-zh/Equality/#23767" class="Function">Q</a> <a id="23769" class="Symbol">:</a> <a id="23771" href="/PLFA-zh/Equality/#23731" class="Bound">A</a> <a id="23773" class="Symbol">→</a> <a id="23775" class="PrimitiveType">Set</a>
+    <a id="23783" href="/PLFA-zh/Equality/#23767" class="Function">Q</a> <a id="23785" href="/PLFA-zh/Equality/#23785" class="Bound">z</a> <a id="23787" class="Symbol">=</a> <a id="23789" href="/PLFA-zh/Equality/#23746" class="Bound">P</a> <a id="23791" href="/PLFA-zh/Equality/#23785" class="Bound">z</a> <a id="23793" class="Symbol">→</a> <a id="23795" href="/PLFA-zh/Equality/#23746" class="Bound">P</a> <a id="23797" href="/PLFA-zh/Equality/#23735" class="Bound">x</a>
+    <a id="23803" href="/PLFA-zh/Equality/#23803" class="Function">Qx</a> <a id="23806" class="Symbol">:</a> <a id="23808" href="/PLFA-zh/Equality/#23767" class="Function">Q</a> <a id="23810" href="/PLFA-zh/Equality/#23735" class="Bound">x</a>
+    <a id="23816" href="/PLFA-zh/Equality/#23803" class="Function">Qx</a> <a id="23819" class="Symbol">=</a> <a id="23821" href="/PLFA-zh/Equality/#23236" class="Function">refl-≐</a> <a id="23828" href="/PLFA-zh/Equality/#23746" class="Bound">P</a>
+    <a id="23834" href="/PLFA-zh/Equality/#23834" class="Function">Qy</a> <a id="23837" class="Symbol">:</a> <a id="23839" href="/PLFA-zh/Equality/#23767" class="Function">Q</a> <a id="23841" href="/PLFA-zh/Equality/#23739" class="Bound">y</a>
+    <a id="23847" href="/PLFA-zh/Equality/#23834" class="Function">Qy</a> <a id="23850" class="Symbol">=</a> <a id="23852" href="/PLFA-zh/Equality/#23742" class="Bound">x≐y</a> <a id="23856" href="/PLFA-zh/Equality/#23767" class="Function">Q</a> <a id="23858" href="/PLFA-zh/Equality/#23803" class="Function">Qx</a></pre>
+<p>给定 <code class="highlighter-rouge">x ≐ y</code> 、一个特定的 <code class="highlighter-rouge">P</code> 和一个 <code class="highlighter-rouge">P y</code> 的证明，我们需要构造一个 <code class="highlighter-rouge">P x</code> 的证明。
+我们首先用一个谓词 <code class="highlighter-rouge">Q</code> 将相等性实例化，使得 <code class="highlighter-rouge">Q z</code> 在 <code class="highlighter-rouge">P z</code> 蕴含 <code class="highlighter-rouge">P x</code> 时成立。
+<code class="highlighter-rouge">Q x</code> 这个性质是显然的，由自反性可以得出，因为 <code class="highlighter-rouge">Q y</code> 因为 <code class="highlighter-rouge">x ≐ y</code> 成立。然而 <code class="highlighter-rouge">Q y</code>
+亦是我们需要的证明，即 <code class="highlighter-rouge">P y</code> 蕴含 <code class="highlighter-rouge">P x</code>。
+<!-- 
+Given `x ≐ y`, a specific `P`, and a proof of `P y`, we have to
+construct a proof of `P x`.  To do so, we instantiate the equality
+with a predicate `Q` such that `Q z` holds if `P z` implies `P x`.
+The property `Q x` is trivial by reflexivity, and hence `Q y` follows
+from `x ≐ y`.  But `Q y` is exactly a proof of what we require, that
+`P y` implies `P x`.
+ --></p>
+
+<p>我们现在来证明 Martin Löf 相等性蕴含了莱布尼兹相等性，以及其逆命题。在正方向上，
+如果我们已知 <code class="highlighter-rouge">x ≡ y</code>，我们需要对于任意的 <code class="highlighter-rouge">P</code>，将 <code class="highlighter-rouge">P x</code> 的证明转换为 <code class="highlighter-rouge">P y</code> 的证明。
+我们很容易就可以做到这一点，因为 <code class="highlighter-rouge">x</code> 与 <code class="highlighter-rouge">y</code> 相等意味着任何 <code class="highlighter-rouge">P x</code> 的证明即是 <code class="highlighter-rouge">P y</code> 的证明。
+<!-- 
+We now show that Martin Löf equality implies
+Leibniz equality, and vice versa.  In the forward direction, if we know
+`x ≡ y` we need for any `P` to take evidence of `P x` to evidence of `P y`,
+which is easy since equality of `x` and `y` implies that any proof
+of `P x` is also a proof of `P y`:
+ --></p>
+<pre class="Agda"><a id="≡-implies-≐"></a><a id="24926" href="/PLFA-zh/Equality/#24926" class="Function">≡-implies-≐</a> <a id="24938" class="Symbol">:</a> <a id="24940" class="Symbol">∀</a> <a id="24942" class="Symbol">{</a><a id="24943" href="/PLFA-zh/Equality/#24943" class="Bound">A</a> <a id="24945" class="Symbol">:</a> <a id="24947" class="PrimitiveType">Set</a><a id="24950" class="Symbol">}</a> <a id="24952" class="Symbol">{</a><a id="24953" href="/PLFA-zh/Equality/#24953" class="Bound">x</a> <a id="24955" href="/PLFA-zh/Equality/#24955" class="Bound">y</a> <a id="24957" class="Symbol">:</a> <a id="24959" href="/PLFA-zh/Equality/#24943" class="Bound">A</a><a id="24960" class="Symbol">}</a>
+  <a id="24964" class="Symbol">→</a> <a id="24966" href="/PLFA-zh/Equality/#24953" class="Bound">x</a> <a id="24968" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="24970" href="/PLFA-zh/Equality/#24955" class="Bound">y</a>
+    <a id="24976" class="Comment">-----</a>
+  <a id="24984" class="Symbol">→</a> <a id="24986" href="/PLFA-zh/Equality/#24953" class="Bound">x</a> <a id="24988" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="24990" href="/PLFA-zh/Equality/#24955" class="Bound">y</a>
+<a id="24992" href="/PLFA-zh/Equality/#24926" class="Function">≡-implies-≐</a> <a id="25004" href="/PLFA-zh/Equality/#25004" class="Bound">x≡y</a> <a id="25008" href="/PLFA-zh/Equality/#25008" class="Bound">P</a>  <a id="25011" class="Symbol">=</a>  <a id="25014" href="/PLFA-zh/Equality/#6770" class="Function">subst</a> <a id="25020" href="/PLFA-zh/Equality/#25008" class="Bound">P</a> <a id="25022" href="/PLFA-zh/Equality/#25004" class="Bound">x≡y</a></pre>
+<p>因为这个方向由替换性可以得来，如之前证明的那样。
+<!-- 
+This direction follows from substitution, which we showed earlier.
+ --></p>
+
+<p>在反方向上，我们已知对于任何 <code class="highlighter-rouge">P</code>，我们可以将 <code class="highlighter-rouge">P x</code> 的证明转换成 <code class="highlighter-rouge">P y</code> 的证明，
+我们需要证明 <code class="highlighter-rouge">x ≡ y</code>：
+<!-- 
+In the reverse direction, given that for any `P` we can take a proof of `P x`
+to a proof of `P y` we need to show `x ≡ y`:
+ --></p>
+<pre class="Agda"><a id="≐-implies-≡"></a><a id="25365" href="/PLFA-zh/Equality/#25365" class="Function">≐-implies-≡</a> <a id="25377" class="Symbol">:</a> <a id="25379" class="Symbol">∀</a> <a id="25381" class="Symbol">{</a><a id="25382" href="/PLFA-zh/Equality/#25382" class="Bound">A</a> <a id="25384" class="Symbol">:</a> <a id="25386" class="PrimitiveType">Set</a><a id="25389" class="Symbol">}</a> <a id="25391" class="Symbol">{</a><a id="25392" href="/PLFA-zh/Equality/#25392" class="Bound">x</a> <a id="25394" href="/PLFA-zh/Equality/#25394" class="Bound">y</a> <a id="25396" class="Symbol">:</a> <a id="25398" href="/PLFA-zh/Equality/#25382" class="Bound">A</a><a id="25399" class="Symbol">}</a>
+  <a id="25403" class="Symbol">→</a> <a id="25405" href="/PLFA-zh/Equality/#25392" class="Bound">x</a> <a id="25407" href="/PLFA-zh/Equality/#21926" class="Function Operator">≐</a> <a id="25409" href="/PLFA-zh/Equality/#25394" class="Bound">y</a>
+    <a id="25415" class="Comment">-----</a>
+  <a id="25423" class="Symbol">→</a> <a id="25425" href="/PLFA-zh/Equality/#25392" class="Bound">x</a> <a id="25427" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="25429" href="/PLFA-zh/Equality/#25394" class="Bound">y</a>
+<a id="25431" href="/PLFA-zh/Equality/#25365" class="Function">≐-implies-≡</a> <a id="25443" class="Symbol">{</a><a id="25444" href="/PLFA-zh/Equality/#25444" class="Bound">A</a><a id="25445" class="Symbol">}</a> <a id="25447" class="Symbol">{</a><a id="25448" href="/PLFA-zh/Equality/#25448" class="Bound">x</a><a id="25449" class="Symbol">}</a> <a id="25451" class="Symbol">{</a><a id="25452" href="/PLFA-zh/Equality/#25452" class="Bound">y</a><a id="25453" class="Symbol">}</a> <a id="25455" href="/PLFA-zh/Equality/#25455" class="Bound">x≐y</a>  <a id="25460" class="Symbol">=</a>  <a id="25463" href="/PLFA-zh/Equality/#25537" class="Function">Qy</a>
+  <a id="25468" class="Keyword">where</a>
+    <a id="25478" href="/PLFA-zh/Equality/#25478" class="Function">Q</a> <a id="25480" class="Symbol">:</a> <a id="25482" href="/PLFA-zh/Equality/#25444" class="Bound">A</a> <a id="25484" class="Symbol">→</a> <a id="25486" class="PrimitiveType">Set</a>
+    <a id="25494" href="/PLFA-zh/Equality/#25478" class="Function">Q</a> <a id="25496" href="/PLFA-zh/Equality/#25496" class="Bound">z</a> <a id="25498" class="Symbol">=</a> <a id="25500" href="/PLFA-zh/Equality/#25448" class="Bound">x</a> <a id="25502" href="/PLFA-zh/Equality/#1072" class="Datatype Operator">≡</a> <a id="25504" href="/PLFA-zh/Equality/#25496" class="Bound">z</a>
+    <a id="25510" href="/PLFA-zh/Equality/#25510" class="Function">Qx</a> <a id="25513" class="Symbol">:</a> <a id="25515" href="/PLFA-zh/Equality/#25478" class="Function">Q</a> <a id="25517" href="/PLFA-zh/Equality/#25448" class="Bound">x</a>
+    <a id="25523" href="/PLFA-zh/Equality/#25510" class="Function">Qx</a> <a id="25526" class="Symbol">=</a> <a id="25528" href="/PLFA-zh/Equality/#1112" class="InductiveConstructor">refl</a>
+    <a id="25537" href="/PLFA-zh/Equality/#25537" class="Function">Qy</a> <a id="25540" class="Symbol">:</a> <a id="25542" href="/PLFA-zh/Equality/#25478" class="Function">Q</a> <a id="25544" href="/PLFA-zh/Equality/#25452" class="Bound">y</a>
+    <a id="25550" href="/PLFA-zh/Equality/#25537" class="Function">Qy</a> <a id="25553" class="Symbol">=</a> <a id="25555" href="/PLFA-zh/Equality/#25455" class="Bound">x≐y</a> <a id="25559" href="/PLFA-zh/Equality/#25478" class="Function">Q</a> <a id="25561" href="/PLFA-zh/Equality/#25510" class="Function">Qx</a></pre>
+<p>此证明与莱布尼兹相等性的对称性证明相似。我们取谓词 <code class="highlighter-rouge">Q</code>，使得 <code class="highlighter-rouge">Q z</code> 在 <code class="highlighter-rouge">x ≡ z</code> 成立时成立。
+那么 <code class="highlighter-rouge">Q x</code> 是显然的，由 Martin Löf 相等性的自反性得来。从而 <code class="highlighter-rouge">Q y</code> 由 <code class="highlighter-rouge">x ≐ y</code> 可得，
+而 <code class="highlighter-rouge">Q y</code> 即是我们所需要的 <code class="highlighter-rouge">x ≡ y</code> 的证明。
+<!-- 
+The proof is similar to that for symmetry of Leibniz equality. We take
+`Q` to be the predicate that holds of `z` if `x ≡ z`. Then `Q x` is
+trivial by reflexivity of Martin Löf equality, and hence `Q y`
+follows from `x ≐ y`.  But `Q y` is exactly a proof of what we
+require, that `x ≡ y`.
+ --></p>
+
+<p>（本部分的内容由此处改编得来：
+<em>≐≃≡: Leibniz Equality is
+Isomorphic to Martin-Löf Identity, Parametrically</em>
+作者：Andreas Abel、Jesper Cockx、Dominique Devries、Andreas Nuyts 与 Philip Wadler，
+草稿，2017）
+<!-- 
+(Parts of this section are adapted from *≐≃≡: Leibniz Equality is
+Isomorphic to Martin-Löf Identity, Parametrically*, by Andreas Abel,
+Jesper Cockx, Dominique Devries, Andreas Nuyts, and Philip Wadler,
+draft, 2017.)
+ --></p>
+
+<h2 id="unipoly">全体多态</h2>
+<!-- ## Universe polymorphism {#unipoly} -->
+
+<p>正如我们之前看到的那样，不是每个类型都属于 <code class="highlighter-rouge">Set</code>，但是每个类型都属于类型阶级的某处，
+<code class="highlighter-rouge">Set₀</code>、<code class="highlighter-rouge">Set₁</code>、<code class="highlighter-rouge">Set₂</code>等等。其中 <code class="highlighter-rouge">Set</code> 是 <code class="highlighter-rouge">Set₀</code> 的缩写，此外 <code class="highlighter-rouge">Set₀ : Set₁</code>，<code class="highlighter-rouge">Set₁ : Set₂</code>，以此类推。
+当我们需要比较两个属于 <code class="highlighter-rouge">Set</code> 的类型的值时，我们之前给出的定义是足够的，
+但如果我们需要比较对于任何等级 <code class="highlighter-rouge">ℓ</code>，两个属于 <code class="highlighter-rouge">Set ℓ</code> 的类型的值该怎么办呢？
+<!-- 
+As we have seen, not every type belongs to `Set`, but instead every
+type belongs somewhere in the hierarchy `Set₀`, `Set₁`, `Set₂`, and so on,
+where `Set` abbreviates `Set₀`, and `Set₀ : Set₁`, `Set₁ : Set₂`, and so on.
+The definition of equality given above is fine if we want to compare two
+values of a type that belongs to `Set`, but what if we want to compare
+two values of a type that belongs to `Set ℓ` for some arbitrary level `ℓ`?
+ --></p>
+
+<p>答案是<em>全体多态</em>（Universe Polymorphism），一个定义可以根据任何等级 <code class="highlighter-rouge">ℓ</code> 来做出。
+为了使用等级，我们首先导入下列内容：
+<!-- 
+The answer is _universe polymorphism_, where a definition is made
+with respect to an arbitrary level `ℓ`. To make use of levels, we
+first import the following:
+ --></p>
+<pre class="Agda"><a id="27448" class="Keyword">open</a> <a id="27453" class="Keyword">import</a> <a id="27460" href="https://agda.github.io/agda-stdlib/Level.html" class="Module">Level</a> <a id="27466" class="Keyword">using</a> <a id="27472" class="Symbol">(</a><a id="27473" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#408" class="Postulate">Level</a><a id="27478" class="Symbol">;</a> <a id="27480" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#657" class="Primitive Operator">_⊔_</a><a id="27483" class="Symbol">)</a> <a id="27485" class="Keyword">renaming</a> <a id="27494" class="Symbol">(</a><a id="27495" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#611" class="Primitive">zero</a> <a id="27500" class="Symbol">to</a> <a id="27503" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#611" class="Primitive">lzero</a><a id="27508" class="Symbol">;</a> <a id="27510" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#627" class="Primitive">suc</a> <a id="27514" class="Symbol">to</a> <a id="27517" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#627" class="Primitive">lsuc</a><a id="27521" class="Symbol">)</a></pre>
+<p>我们将构造器 <code class="highlighter-rouge">zero</code> 和 <code class="highlighter-rouge">suc</code> 重命名至 <code class="highlighter-rouge">lzero</code> 和 <code class="highlighter-rouge">lsuc</code>，为了防止自然数和等级之间的混淆。
+<!-- 
+We rename constructors `zero` and `suc` to `lzero` and `lsuc` to avoid confusion
+between levels and naturals.
+ --></p>
+
+<p>等级与自然数是同构的，有相似的构造器：
+<!-- 
+Levels are isomorphic to natural numbers, and have similar constructors:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lzero : Level
+lsuc  : Level → Level
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">Set₀</code>、<code class="highlighter-rouge">Set₁</code>、<code class="highlighter-rouge">Set₂</code> 等名称，是下列的简写：
+<!-- 
+The names `Set₀`, `Set₁`, `Set₂`, and so on, are abbreviations for
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Set lzero
+Set (lsuc lzero)
+Set (lsuc (lsuc lzero))
+</code></pre></div></div>
+
+<p>以此类推。我们还有一个运算符：
+<!-- 
+and so on. There is also an operator
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>_⊔_ : Level → Level → Level
+</code></pre></div></div>
+
+<p>给定两个等级，返回两者中较大的那个。
+<!-- 
+that given two levels returns the larger of the two.
+ --></p>
+
+<p>下面是相等性的定义，推广到任意等级：
+<!-- 
+Here is the definition of equality, generalised to an arbitrary level:
+ --></p>
+<pre class="Agda"><a id="28375" class="Keyword">data</a> <a id="_≡′_"></a><a id="28380" href="/PLFA-zh/Equality/#28380" class="Datatype Operator">_≡′_</a> <a id="28385" class="Symbol">{</a><a id="28386" href="/PLFA-zh/Equality/#28386" class="Bound">ℓ</a> <a id="28388" class="Symbol">:</a> <a id="28390" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#408" class="Postulate">Level</a><a id="28395" class="Symbol">}</a> <a id="28397" class="Symbol">{</a><a id="28398" href="/PLFA-zh/Equality/#28398" class="Bound">A</a> <a id="28400" class="Symbol">:</a> <a id="28402" class="PrimitiveType">Set</a> <a id="28406" href="/PLFA-zh/Equality/#28386" class="Bound">ℓ</a><a id="28407" class="Symbol">}</a> <a id="28409" class="Symbol">(</a><a id="28410" href="/PLFA-zh/Equality/#28410" class="Bound">x</a> <a id="28412" class="Symbol">:</a> <a id="28414" href="/PLFA-zh/Equality/#28398" class="Bound">A</a><a id="28415" class="Symbol">)</a> <a id="28417" class="Symbol">:</a> <a id="28419" href="/PLFA-zh/Equality/#28398" class="Bound">A</a> <a id="28421" class="Symbol">→</a> <a id="28423" class="PrimitiveType">Set</a> <a id="28427" href="/PLFA-zh/Equality/#28386" class="Bound">ℓ</a> <a id="28429" class="Keyword">where</a>
+  <a id="_≡′_.refl′"></a><a id="28437" href="/PLFA-zh/Equality/#28437" class="InductiveConstructor">refl′</a> <a id="28443" class="Symbol">:</a> <a id="28445" href="/PLFA-zh/Equality/#28410" class="Bound">x</a> <a id="28447" href="/PLFA-zh/Equality/#28380" class="Datatype Operator">≡′</a> <a id="28450" href="/PLFA-zh/Equality/#28410" class="Bound">x</a></pre>
+<p>相似的，下面是对称性的推广定义：
+<!-- 
+Similarly, here is the generalised definition of symmetry:
+ --></p>
+<pre class="Agda"><a id="sym′"></a><a id="28569" href="/PLFA-zh/Equality/#28569" class="Function">sym′</a> <a id="28574" class="Symbol">:</a> <a id="28576" class="Symbol">∀</a> <a id="28578" class="Symbol">{</a><a id="28579" href="/PLFA-zh/Equality/#28579" class="Bound">ℓ</a> <a id="28581" class="Symbol">:</a> <a id="28583" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#408" class="Postulate">Level</a><a id="28588" class="Symbol">}</a> <a id="28590" class="Symbol">{</a><a id="28591" href="/PLFA-zh/Equality/#28591" class="Bound">A</a> <a id="28593" class="Symbol">:</a> <a id="28595" class="PrimitiveType">Set</a> <a id="28599" href="/PLFA-zh/Equality/#28579" class="Bound">ℓ</a><a id="28600" class="Symbol">}</a> <a id="28602" class="Symbol">{</a><a id="28603" href="/PLFA-zh/Equality/#28603" class="Bound">x</a> <a id="28605" href="/PLFA-zh/Equality/#28605" class="Bound">y</a> <a id="28607" class="Symbol">:</a> <a id="28609" href="/PLFA-zh/Equality/#28591" class="Bound">A</a><a id="28610" class="Symbol">}</a>
+  <a id="28614" class="Symbol">→</a> <a id="28616" href="/PLFA-zh/Equality/#28603" class="Bound">x</a> <a id="28618" href="/PLFA-zh/Equality/#28380" class="Datatype Operator">≡′</a> <a id="28621" href="/PLFA-zh/Equality/#28605" class="Bound">y</a>
+    <a id="28627" class="Comment">------</a>
+  <a id="28636" class="Symbol">→</a> <a id="28638" href="/PLFA-zh/Equality/#28605" class="Bound">y</a> <a id="28640" href="/PLFA-zh/Equality/#28380" class="Datatype Operator">≡′</a> <a id="28643" href="/PLFA-zh/Equality/#28603" class="Bound">x</a>
+<a id="28645" href="/PLFA-zh/Equality/#28569" class="Function">sym′</a> <a id="28650" href="/PLFA-zh/Equality/#28437" class="InductiveConstructor">refl′</a> <a id="28656" class="Symbol">=</a> <a id="28658" href="/PLFA-zh/Equality/#28437" class="InductiveConstructor">refl′</a></pre>
+<p>为了简介，我们在本书中给出的定义将避免使用全体多态，但是大多数标准库中的定义，
+包括相等性的定义，都推广到了任意等级，如上所示。
+<!-- 
+For simplicity, we avoid universe polymorphism in the definitions given in
+the text, but most definitions in the standard library, including those for
+equality, are generalised to arbitrary levels as above.
+ --></p>
+
+<p>下面是莱布尼兹相等性的推广定义：
+<!-- 
+Here is the generalised definition of Leibniz equality:
+ --></p>
+<pre class="Agda"><a id="_≐′_"></a><a id="29068" href="/PLFA-zh/Equality/#29068" class="Function Operator">_≐′_</a> <a id="29073" class="Symbol">:</a> <a id="29075" class="Symbol">∀</a> <a id="29077" class="Symbol">{</a><a id="29078" href="/PLFA-zh/Equality/#29078" class="Bound">ℓ</a> <a id="29080" class="Symbol">:</a> <a id="29082" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#408" class="Postulate">Level</a><a id="29087" class="Symbol">}</a> <a id="29089" class="Symbol">{</a><a id="29090" href="/PLFA-zh/Equality/#29090" class="Bound">A</a> <a id="29092" class="Symbol">:</a> <a id="29094" class="PrimitiveType">Set</a> <a id="29098" href="/PLFA-zh/Equality/#29078" class="Bound">ℓ</a><a id="29099" class="Symbol">}</a> <a id="29101" class="Symbol">(</a><a id="29102" href="/PLFA-zh/Equality/#29102" class="Bound">x</a> <a id="29104" href="/PLFA-zh/Equality/#29104" class="Bound">y</a> <a id="29106" class="Symbol">:</a> <a id="29108" href="/PLFA-zh/Equality/#29090" class="Bound">A</a><a id="29109" class="Symbol">)</a> <a id="29111" class="Symbol">→</a> <a id="29113" class="PrimitiveType">Set</a> <a id="29117" class="Symbol">(</a><a id="29118" href="https://agda.github.io/agda-stdlib/Agda.Primitive.html#627" class="Primitive">lsuc</a> <a id="29123" href="/PLFA-zh/Equality/#29078" class="Bound">ℓ</a><a id="29124" class="Symbol">)</a>
+<a id="29126" href="/PLFA-zh/Equality/#29068" class="Function Operator">_≐′_</a> <a id="29131" class="Symbol">{</a><a id="29132" href="/PLFA-zh/Equality/#29132" class="Bound">ℓ</a><a id="29133" class="Symbol">}</a> <a id="29135" class="Symbol">{</a><a id="29136" href="/PLFA-zh/Equality/#29136" class="Bound">A</a><a id="29137" class="Symbol">}</a> <a id="29139" href="/PLFA-zh/Equality/#29139" class="Bound">x</a> <a id="29141" href="/PLFA-zh/Equality/#29141" class="Bound">y</a> <a id="29143" class="Symbol">=</a> <a id="29145" class="Symbol">∀</a> <a id="29147" class="Symbol">(</a><a id="29148" href="/PLFA-zh/Equality/#29148" class="Bound">P</a> <a id="29150" class="Symbol">:</a> <a id="29152" href="/PLFA-zh/Equality/#29136" class="Bound">A</a> <a id="29154" class="Symbol">→</a> <a id="29156" class="PrimitiveType">Set</a> <a id="29160" href="/PLFA-zh/Equality/#29132" class="Bound">ℓ</a><a id="29161" class="Symbol">)</a> <a id="29163" class="Symbol">→</a> <a id="29165" href="/PLFA-zh/Equality/#29148" class="Bound">P</a> <a id="29167" href="/PLFA-zh/Equality/#29139" class="Bound">x</a> <a id="29169" class="Symbol">→</a> <a id="29171" href="/PLFA-zh/Equality/#29148" class="Bound">P</a> <a id="29173" href="/PLFA-zh/Equality/#29141" class="Bound">y</a></pre>
+<p>之前，签名中使用了 <code class="highlighter-rouge">Set₁</code> 来作为一个值包括了 <code class="highlighter-rouge">Set</code> 的类型；而此处，我们使用
+<code class="highlighter-rouge">Set (lsuc ℓ)</code> 来作为一个值包括了 <code class="highlighter-rouge">Set ℓ</code> 的类型。
+<!-- 
+Before the signature used `Set₁` as the type of a term that includes
+`Set`, whereas here the signature uses `Set (lsuc ℓ)` as the type of a
+term that includes `Set ℓ`.
+ --></p>
+
+<p>更多的关于等级的信息可以从<a href="http://wiki.portal.chalmers.se/agda/pmwiki.php?n=ReferenceManual.UniversePolymorphism">Agda 维基（英文）</a>中查询。
+<!-- 
+Further information on levels can be found in the [Agda Wiki][wiki].
+ --></p>
+
+<h2 id="标准库">标准库</h2>
+<!-- ## Standard library -->
+
+<p>标准库中可以找到与本章节中相似的定义：
+<!-- 
+Definitions similar to those in this chapter can be found in the
+standard library:
+ --></p>
+<pre class="Agda"><a id="29854" class="Comment">-- import Relation.Binary.PropositionalEquality as Eq</a>
+<a id="29908" class="Comment">-- open Eq using (_≡_; refl; trans; sym; cong; cong-app; subst)</a>
+<a id="29972" class="Comment">-- open Eq.≡-Reasoning using (begin_; _≡⟨⟩_; _≡⟨_⟩_; _∎)</a></pre>
+<p>这里的导入以注释的形式给出，以防止冲突，如引言中解释的那样。
+<!-- 
+Here the imports are shown as comments rather than code to avoid
+collisions, as mentioned in the introduction.
+ --></p>
+
+<h2 id="unicode">Unicode</h2>
+
+<p>本章节使用下列 Unicode：
+<!-- 
+This chapter uses the following unicode:
+ --></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>≡  U+2261  等同于 (\==, \equiv)
+⟨  U+27E8  数学左尖括号 (\&lt;)
+⟩  U+27E9  数学右尖括号 (\&gt;)
+∎  U+220E  证毕 (\qed)
+≐  U+2250  接近于极限 (\.=)
+ℓ  U+2113  手写小写 L (\ell)
+⊔  U+2294  正方形向上开口 (\lub)
+₀  U+2080  下标 0 (\_0)
+₁  U+2081  下标 1 (\_1)
+₂  U+2082  下标 2 (\_2)
+</code></pre></div></div>
+
+  </div>
+
+  <p style="text-align:center;">
+    
+    <a alt="Previous chapter" href="/PLFA-zh/Relations/">前一章</a>
+    &bullet;
+    
+    
+    <a alt="Source code" href="https://github.com/roger-uw/PLFA-zh/blob/dev/src/plfa/Equality.lagda">源代码</a>
+    
+    
+    &bullet;
+    <a alt="Next chapter" href="/PLFA-zh/Isomorphism/">后一章</a>
+    
+</p>
+
+
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/PLFA-zh/"></data>
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">编程语言基础：Agda 描述
+</h2>
+
+    <h3 class="footer-heading">原作者：</h3><div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Philip Wadler</li>
+          <li><a class="u-email" href="mailto:wadler@inf.ed.ac.uk">wadler@inf.ed.ac.uk</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/wadler"><svg class="svg-icon"><use xlink:href="/PLFA-zh/assets/minima-social-icons.svg#github"></use></svg> <span class="username">wadler</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3"></div>
+    </div><div class="footer-col-wrapper">
+      <div class="footer-col footer-col-1">
+        <ul class="contact-list">
+          <li class="p-name">Wen Kokke</li>
+          <li><a class="u-email" href="mailto:wen.kokke@ed.ac.uk">wen.kokke@ed.ac.uk</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-2"><ul class="social-media-list"><li><a href="https://github.com/wenkokke"><svg class="svg-icon"><use xlink:href="/PLFA-zh/assets/minima-social-icons.svg#github"></use></svg> <span class="username">wenkokke</span></a></li><li><a href="https://www.twitter.com/wenkokke"><svg class="svg-icon"><use xlink:href="/PLFA-zh/assets/minima-social-icons.svg#twitter"></use></svg> <span class="username">wenkokke</span></a></li></ul>
+</div>
+
+      <div class="footer-col footer-col-3"></div>
+    </div><h3 class="footer-heading">本章翻译进度：100%</h3>
+        <h3 class="footer-heading">本章译者：</h3>
+        <p>Fangyi Zhou</p>本作品采用<a rel="license" href="http://creativecommons.org/licenses/by/4.0/">知识共享署名 4.0 国际许可协议</a>进行许可。<br />
+    This work is licensed under a <a rel="license" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>
+  </div>
+</footer>
+<!-- Import jQuery -->
+<script type="text/javascript" src="/PLFA-zh/assets/jquery.js"></script>
+
+<!-- Script which draws background for progress tags -->
+<script type="text/javascript">
+$('span.progress').each(function(){
+    const progress = parseInt($(this).text());
+    $(this).css({
+        'border-style': 'solid',
+        'border-radius': '5px',
+        'border-width': 'thin',
+        'border-color': progress === 100 ? 'limegreen' : 'dimgray',
+        'font-size': '70%',
+        'padding': '0% 0.5% 0% 0.5%',
+        'margin': '0em 0em 0em 0.5em',
+        'box-sizing': 'border-box',
+        'vertical-align': '10%'
+    });
+    $(this).text(progress.toString() + " %");
+})
+</script>
+
+<!-- Script which allows for foldable code blocks -->
+<script type="text/javascript">
+ $('div.foldable pre').each(function(){
+     var autoHeight = $(this).height();
+     var lineHeight = parseFloat($(this).css('line-height'));
+
+     var plus    = $("<div></div>");
+     var horLine = $("<div></div>");
+     var verLine = $("<div></div>");
+     $(this).prepend(plus);
+     plus.css({
+         'position'         : 'relative',
+         'float'            : 'right',
+         'right'            : '-' + (0.5 * lineHeight - 1.5) + 'px',
+         'width'            : lineHeight,
+         'height'           : lineHeight});
+     verLine.css({
+         'position'         : 'relative',
+         'height'           : lineHeight,
+         'width'            : '3px',
+         'background-color' : '#C1E0FF'});
+     horLine.css({
+         'position'         : 'relative',
+         'top'              : '-' + (0.5 * lineHeight + 1.5) + 'px',
+         'left'             : '-' + (0.5 * lineHeight - 1.5) + 'px',
+         'height'           : '3px',
+         'width'            : lineHeight,
+         'background-color' : '#C1E0FF'});
+     plus.append(verLine);
+     plus.append(horLine);
+
+     $(this).height(2.0 * lineHeight);
+     $(this).css('overflow','hidden');
+
+     $(this).click(function(){
+         if ($(this).height() == autoHeight) {
+             $(this).height(2.0 * lineHeight);
+             plus.show();
+         }
+         else {
+             $(this).height('auto');
+             plus.hide();
+         }
+     });
+ });
+</script>
+
+<!-- Import KaTeX -->
+<script type="text/javascript" src="/PLFA-zh/assets/katex.js"></script>
+
+<!-- Script which renders TeX using KaTeX -->
+<script type="text/javascript">
+ $("script[type='math/tex']").replaceWith(
+     function(){
+         var tex = $(this).text();
+         return "<span class=\"inline-equation\">" +
+                katex.renderToString(tex) +
+                "</span>";
+     });
+ $("script[type='math/tex; mode=display']").replaceWith(
+     function(){
+         var tex = $(this).text().replace(/%.*?(\n|$)/g,"");
+         return "<div class=\"equation\">" +
+                katex.renderToString("\\displaystyle "+tex) +
+                "</div>";
+     });
+</script>
+</body>
+
+</html>
